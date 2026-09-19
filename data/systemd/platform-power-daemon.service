@@ -1,0 +1,27 @@
+[Unit]
+Description=Platform Power daemon (thermal profile, battery charge and BIOS power settings)
+Documentation=https://github.com/nplacide95/dell-power-manager-fedora
+
+[Service]
+Type=dbus
+BusName=io.github.nplacide95.PlatformPower.Daemon1
+ExecStart=/usr/libexec/platform-power-daemon
+# Root is required: writes to /sys/firmware/acpi/platform_profile,
+# /sys/class/power_supply/*/charge_control_*_threshold and
+# /sys/class/firmware-attributes/dell-wmi-sysman/attributes/*/current_value
+# are only permitted for root (the kernel does not expose these behind a
+# udev tag/ACL like brightness). Do not weaken this without also giving
+# those specific sysfs paths a udev rule instead.
+User=root
+Restart=on-failure
+RestartSec=2
+
+# ProtectSystem=strict remounts most of the tree read-only but always
+# exempts /dev, /proc and /sys, so sysfs writes and /proc/<pid>/stat reads
+# (used by the polkit PID/start-time check) keep working without needing
+# any ReadWritePaths= entries here -- which is deliberate: naming a path
+# like /sys/class/firmware-attributes explicitly would fail this unit's
+# startup on any machine where dell-wmi-sysman isn't loaded.
+ProtectHome=true
+ProtectSystem=strict
+NoNewPrivileges=true

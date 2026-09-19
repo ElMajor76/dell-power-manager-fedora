@@ -1,0 +1,5 @@
+[D-BUS Service]
+Name=io.github.nplacide95.PlatformPower.Daemon1
+Exec=/usr/libexec/platform-power-daemon
+User=root
+SystemdService=platform-power-daemon.service

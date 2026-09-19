@@ -1,0 +1,40 @@
+<node>
+  <interface name="io.github.nplacide95.PlatformPower.Daemon1">
+
+    <!-- Full snapshot of everything the UI needs, as a JSON string.
+         Shaped like backend.read_full_state(). Read-only, no polkit check. -->
+    <method name="GetState">
+      <arg type="s" name="state_json" direction="out"/>
+    </method>
+
+    <!-- profile must be one of platform_profile_choices. Requires
+         io.github.nplacide95.platform-power.set-thermal-profile. -->
+    <method name="SetPlatformProfile">
+      <arg type="s" name="profile" direction="in"/>
+    </method>
+
+    <!-- start/end are 0-100 percent. Requires
+         io.github.nplacide95.platform-power.set-charge-threshold. -->
+    <method name="SetChargeThresholds">
+      <arg type="s" name="battery" direction="in"/>
+      <arg type="i" name="start" direction="in"/>
+      <arg type="i" name="end" direction="in"/>
+    </method>
+
+    <!-- Generic BIOS/firmware-attribute write (Peak Shift, Advanced
+         Charge Configuration, USB-C PowerShare, ...). Requires
+         io.github.nplacide95.platform-power.set-firmware-attribute. -->
+    <method name="SetFirmwareAttribute">
+      <arg type="s" name="attribute_id" direction="in"/>
+      <arg type="s" name="value" direction="in"/>
+    </method>
+
+    <!-- Emitted after any successful Set* call, or when this process
+         notices external state changes (AC plug/unplug, etc.), carrying
+         the same JSON shape as GetState. -->
+    <signal name="StateChanged">
+      <arg type="s" name="state_json"/>
+    </signal>
+
+  </interface>
+</node>

@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#62a0ea"/>
+      <stop offset="1" stop-color="#1c71d8"/>
+    </linearGradient>
+  </defs>
+  <rect x="4" y="4" width="120" height="120" rx="28" fill="url(#bg)"/>
+  <!-- battery body -->
+  <rect x="30" y="44" width="56" height="40" rx="8" fill="#ffffff" fill-opacity="0.95"/>
+  <rect x="88" y="56" width="8" height="16" rx="3" fill="#ffffff" fill-opacity="0.95"/>
+  <!-- lightning bolt (charging / power) -->
+  <path d="M62 50 L46 68 L58 68 L54 80 L74 60 L62 60 Z" fill="#1c71d8"/>
+</svg>

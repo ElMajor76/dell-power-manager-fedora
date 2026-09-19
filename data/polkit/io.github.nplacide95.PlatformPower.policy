@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE policyconfig PUBLIC
+ "-//freedesktop//DTD PolicyKit Policy Configuration 1.0//EN"
+ "http://www.freedesktop.org/standards/PolicyKit/1/policyconfig.dtd">
+<policyconfig>
+
+  <vendor>Platform Power</vendor>
+  <vendor_url>https://github.com/nplacide95/dell-power-manager-fedora</vendor_url>
+  <icon_name>io.github.nplacide95.PlatformPower</icon_name>
+
+  <action id="io.github.nplacide95.platform-power.set-thermal-profile">
+    <description>Changer le profil thermique</description>
+    <message>Une authentification est requise pour changer le profil thermique</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <!-- Matches the "no elevation needed" behaviour of GNOME/KDE's own
+           power-mode switcher, which uses the very same sysfs file. -->
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+
+  <action id="io.github.nplacide95.platform-power.set-charge-threshold">
+    <description>Modifier les seuils de charge de la batterie</description>
+    <message>Une authentification est requise pour modifier les seuils de charge</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <allow_active>yes</allow_active>
+    </defaults>
+  </action>
+
+  <action id="io.github.nplacide95.platform-power.set-firmware-attribute">
+    <description>Modifier un réglage d'alimentation du BIOS</description>
+    <message>Une authentification administrateur est requise pour modifier ce réglage BIOS (Peak Shift, charge programmée, USB-C PowerShare, ...)</message>
+    <defaults>
+      <allow_any>no</allow_any>
+      <allow_inactive>no</allow_inactive>
+      <!-- Deliberately stricter than the two actions above: these write
+           through to actual BIOS setup variables, which is a bigger blast
+           radius than a runtime-only sysfs toggle. -->
+      <allow_active>auth_admin_keep</allow_active>
+    </defaults>
+  </action>
+
+</policyconfig>
