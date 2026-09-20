@@ -71,9 +71,12 @@ BIOS admin password on your behalf.
   user, matching how GNOME/KDE's own power-mode switch behaves);
   `SetFirmwareAttribute` requires `auth_admin_keep` (password prompt),
   since it writes into actual BIOS setup variables.
-- `platform-power` — the GTK4/libadwaita GUI, runs as the normal user,
-  talks to the daemon exclusively over D-Bus. Never touches sysfs or
-  needs any elevated privilege itself.
+- `platform-power` — the GTK4/libadwaita GUI and system tray indicator, runs as the
+  normal user, talks to the daemon exclusively over D-Bus. Never touches sysfs or
+  needs any elevated privilege itself. Integrates a StatusNotifierItem / DBusMenu
+  tray icon (GNOME via AppIndicator, KDE, XFCE, Waybar) with quick thermal profile
+  switching directly from the tray, mouse wheel profile cycling, battery status in
+  the tooltip, close-to-tray, and a `--minimized` / `-m` command-line option.
 
 See `src/platform_power/backend.py` for the sysfs logic and
 `src/platform_power/dbus_iface.xml` for the D-Bus contract.
