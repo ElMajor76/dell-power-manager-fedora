@@ -15,7 +15,7 @@ from .pages.thermal import ThermalPage
 class PlatformPowerWindow(Adw.ApplicationWindow):
     __gtype_name__ = "PlatformPowerWindow"
 
-    def __init__(self, **kwargs) -> None:
+    def __init__(self, client: DaemonClient | None = None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.set_default_size(720, 640)
         self.set_title("Platform Power")
@@ -23,9 +23,30 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._toast_overlay = Adw.ToastOverlay()
         self.set_content(self._toast_overlay)
 
-        self._client: DaemonClient | None = None
+        self._quitting: bool = False
+        self.connect("close-request", self._on_close_request)
+
+        self._client: DaemonClient | None = client
         self._build_ui()
-        self._connect_daemon()
+        if self._client is not None:
+            try:
+                state = self._client.get_state()
+                self._content_bin.set_child(self._stack)
+                self._client.watch_state_changed(self._apply_state)
+                self._apply_state(state)
+            except Exception as exc:
+                self._show_unavailable(str(exc))
+        else:
+            self._connect_daemon()
+
+    def _on_close_request(self, window: Gtk.Window) -> bool:
+        if self._quitting:
+            return False
+        app = self.get_application()
+        if app and getattr(app, "has_tray", False):
+            self.set_visible(False)
+            return True
+        return False
 
     # -- UI scaffolding -----------------------------------------------------
 
