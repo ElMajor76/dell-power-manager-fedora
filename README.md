@@ -81,6 +81,14 @@ BIOS admin password on your behalf.
 See `src/platform_power/backend.py` for the sysfs logic and
 `src/platform_power/dbus_iface.xml` for the D-Bus contract.
 
+## Installation rapide (RPM pré-compilé)
+
+Un paquet RPM prêt à l'emploi est directement disponible dans le dossier `packages/` du dépôt :
+
+```bash
+sudo dnf install packages/platform-power-manager-0.1.0-1.fc44.noarch.rpm
+```
+
 ## Building the RPM
 
 On a Fedora machine (not this Windows one):
