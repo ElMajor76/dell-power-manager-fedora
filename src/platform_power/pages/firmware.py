@@ -128,7 +128,9 @@ class FirmwarePage(Adw.PreferencesPage):
             )
         )
         self._locked_banner.set_revealed(False)
-        self.add(Adw.PreferencesGroup(child=self._locked_banner))
+        self._locked_group = Adw.PreferencesGroup()
+        self._locked_group.add(self._locked_banner)
+        self.add(self._locked_group)
 
         for category in _CATEGORY_ORDER:
             title, description = _CATEGORY_TITLES[category]
@@ -146,11 +148,16 @@ class FirmwarePage(Adw.PreferencesPage):
             icon_name="dialog-information-symbolic",
             visible=False,
         )
-        self.add(Adw.PreferencesGroup(child=self._empty))
+        self._empty_group = Adw.PreferencesGroup()
+        self._empty_group.add(self._empty)
+        self.add(self._empty_group)
 
     def update_state(self, attributes: list[dict], locked: bool, sysman_present: bool) -> None:
         self._locked_banner.set_revealed(locked)
-        self._empty.set_visible(sysman_present and not attributes or not sysman_present)
+        self._locked_group.set_visible(locked)
+        is_empty = (sysman_present and not attributes) or not sysman_present
+        self._empty.set_visible(is_empty)
+        self._empty_group.set_visible(is_empty)
 
         by_category: dict[str, list[dict]] = {c: [] for c in _CATEGORY_ORDER}
         for attr in attributes:

@@ -77,16 +77,20 @@ class BatteryPage(Adw.PreferencesPage):
             icon_name="dialog-warning-symbolic",
             visible=False,
         )
-        self.add(Adw.PreferencesGroup(child=self._unsupported))
+        self._unsupported_group = Adw.PreferencesGroup()
+        self._unsupported_group.add(self._unsupported)
+        self.add(self._unsupported_group)
 
     def update_state(self, batteries: list[dict]) -> None:
         if not batteries:
             self._info_group.set_visible(False)
             self._charge_group.set_visible(False)
+            self._unsupported_group.set_visible(True)
             self._unsupported.set_visible(True)
             return
 
         self._info_group.set_visible(True)
+        self._unsupported_group.set_visible(False)
         self._unsupported.set_visible(False)
 
         # Latitude/Precision machines normally expose a single BAT0; if a

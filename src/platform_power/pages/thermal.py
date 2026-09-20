@@ -54,13 +54,16 @@ class ThermalPage(Adw.PreferencesPage):
             icon_name="dialog-warning-symbolic",
             visible=False,
         )
-        self.add(Adw.PreferencesGroup(child=self._unsupported))
+        self._unsupported_group = Adw.PreferencesGroup()
+        self._unsupported_group.add(self._unsupported)
+        self.add(self._unsupported_group)
 
     def update_state(self, platform_profile: dict) -> None:
         self._updating = True
         try:
             supported = platform_profile.get("supported", False)
             self._group.set_visible(supported)
+            self._unsupported_group.set_visible(not supported)
             self._unsupported.set_visible(not supported)
             if not supported:
                 return
