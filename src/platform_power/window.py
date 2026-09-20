@@ -18,7 +18,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
     def __init__(self, client: DaemonClient | None = None, **kwargs) -> None:
         super().__init__(**kwargs)
         self.set_default_size(720, 640)
-        self.set_title("Platform Power")
+        self.set_title("Dell Power Manager")
 
         self._toast_overlay = Adw.ToastOverlay()
         self.set_content(self._toast_overlay)

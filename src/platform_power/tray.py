@@ -316,7 +316,7 @@ class TrayIndicator:
         elif prop == "Id":
             return GLib.Variant("s", "io.github.nplacide95.PlatformPower")
         elif prop == "Title":
-            return GLib.Variant("s", "Platform Power")
+            return GLib.Variant("s", "Dell Power Manager")
         elif prop == "Status":
             return GLib.Variant("s", "Active")
         elif prop == "IconName":
@@ -339,7 +339,7 @@ class TrayIndicator:
                 (
                     "io.github.nplacide95.PlatformPower",
                     [],
-                    "Platform Power",
+                    "Dell Power Manager",
                     desc,
                 ),
             )
@@ -397,7 +397,7 @@ class TrayIndicator:
 
         # 1: Title
         items[ID_APP_TITLE] = {
-            "label": GLib.Variant("s", "Platform Power"),
+            "label": GLib.Variant("s", "Dell Power Manager"),
             "enabled": GLib.Variant("b", False),
         }
         # 2: Separator
@@ -431,7 +431,7 @@ class TrayIndicator:
 
         # 51: Open window
         items[ID_OPEN_APP] = {
-            "label": GLib.Variant("s", "Ouvrir Platform Power"),
+            "label": GLib.Variant("s", "Ouvrir Dell Power Manager"),
             "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
         }
 

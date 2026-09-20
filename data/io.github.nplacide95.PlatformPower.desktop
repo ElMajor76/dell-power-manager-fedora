@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
-Name=Platform Power
-Name[fr]=Platform Power
+Name=Dell Power Manager
+Name[fr]=Dell Power Manager
 Comment=Manage thermal profile, battery charging and BIOS power settings
 Comment[fr]=Gérer le profil thermique, la charge de la batterie et les réglages d'alimentation du BIOS
 Exec=platform-power

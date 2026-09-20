@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
   <id>io.github.nplacide95.PlatformPower</id>
-  <name>Platform Power</name>
+  <name>Dell Power Manager</name>
   <summary>Thermal profile, battery charging and BIOS power settings</summary>
   <metadata_license>MIT</metadata_license>
   <project_license>MIT</project_license>

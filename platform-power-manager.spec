@@ -72,6 +72,18 @@ install -Dm644 data/io.github.nplacide95.PlatformPower.desktop \
     %{buildroot}%{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
 install -Dm644 data/icons/io.github.nplacide95.PlatformPower.svg \
     %{buildroot}%{_datadir}/icons/hicolor/scalable/apps/io.github.nplacide95.PlatformPower.svg
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_256.png \
+    %{buildroot}%{_datadir}/icons/hicolor/256x256/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_128.png \
+    %{buildroot}%{_datadir}/icons/hicolor/128x128/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_64.png \
+    %{buildroot}%{_datadir}/icons/hicolor/64x64/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_48.png \
+    %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_32.png \
+    %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower.png \
+    %{buildroot}%{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
 
 # AppStream metadata
 install -Dm644 data/io.github.nplacide95.PlatformPower.metainfo.xml \
@@ -105,7 +117,8 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_sysconfdir}/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf
 %{_datadir}/polkit-1/actions/io.github.nplacide95.PlatformPower.policy
 %{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
-%{_datadir}/icons/hicolor/scalable/apps/io.github.nplacide95.PlatformPower.svg
+%{_datadir}/icons/hicolor/*/apps/io.github.nplacide95.PlatformPower.*
+%{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
