@@ -62,7 +62,10 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         header.set_title_widget(self._switcher)
 
         self._thermal_page = ThermalPage(self._set_platform_profile)
-        self._battery_page = BatteryPage(self._set_charge_thresholds)
+        self._battery_page = BatteryPage(
+            self._set_charge_thresholds,
+            self._set_battery_charge_mode,
+        )
         self._firmware_page = FirmwarePage(self._set_firmware_attribute)
 
         self._stack.add_titled_with_icon(
@@ -139,28 +142,51 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         toast = Adw.Toast(title=message, timeout=5)
         self._toast_overlay.add_toast(toast)
 
-    # -- Actions (each does the write, then re-syncs from the daemon so the
-    #    UI always reflects what the kernel actually accepted, not just what
-    #    was requested) --------------------------------------------------
+    # -- Actions (each call is asynchronous so Polkit auth or slow BIOS
+    #    writes never freeze the GTK main loop) ----------------------------
 
     def _set_platform_profile(self, profile: str) -> None:
-        self._run_action(lambda: self._client.set_platform_profile(profile))
-
-    def _set_charge_thresholds(self, battery: str, start: int, end: int) -> None:
-        self._run_action(lambda: self._client.set_charge_thresholds(battery, start, end))
-
-    def _set_firmware_attribute(self, attribute_id: str, value: str) -> None:
-        self._run_action(lambda: self._client.set_firmware_attribute(attribute_id, value))
-
-    def _run_action(self, fn) -> None:
         if self._client is None:
             return
-        try:
-            fn()
-        except RuntimeError as exc:
-            self._show_error(str(exc))
-        finally:
-            # The daemon also emits StateChanged on success, but calling
-            # this explicitly covers the "write silently ignored by
-            # firmware" case where no exception was raised either.
-            GLib.idle_add(self._refresh)
+        self._client.set_platform_profile_async(
+            profile,
+            on_done=self._on_action_success,
+            on_error=self._on_action_error,
+        )
+
+    def _set_charge_thresholds(self, battery: str, start: int, end: int) -> None:
+        if self._client is None:
+            return
+        self._client.set_charge_thresholds_async(
+            battery,
+            start,
+            end,
+            on_done=self._on_action_success,
+            on_error=self._on_action_error,
+        )
+
+    def _set_battery_charge_mode(self, mode: str) -> None:
+        if self._client is None:
+            return
+        self._client.set_battery_charge_mode_async(
+            mode,
+            on_done=self._on_action_success,
+            on_error=self._on_action_error,
+        )
+
+    def _set_firmware_attribute(self, attribute_id: str, value: str) -> None:
+        if self._client is None:
+            return
+        self._client.set_firmware_attribute_async(
+            attribute_id,
+            value,
+            on_done=self._on_action_success,
+            on_error=self._on_action_error,
+        )
+
+    def _on_action_success(self) -> None:
+        GLib.idle_add(self._refresh)
+
+    def _on_action_error(self, exc: Exception) -> None:
+        self._show_error(str(exc))
+        GLib.idle_add(self._refresh)

@@ -322,7 +322,7 @@ class TrayIndicator:
         elif prop == "IconName":
             return GLib.Variant("s", "io.github.nplacide95.PlatformPower")
         elif prop == "IconThemePath":
-            return GLib.Variant("s", "")
+            return GLib.Variant("s", "/usr/share/icons/hicolor")
         elif prop == "Menu":
             return GLib.Variant("o", MENU_PATH)
         elif prop == "ItemIsMenu":
@@ -389,7 +389,7 @@ class TrayIndicator:
         elif prop == "Status":
             return GLib.Variant("s", "normal")
         elif prop == "IconThemePath":
-            return GLib.Variant("as", [])
+            return GLib.Variant("as", ["/usr/share/icons/hicolor"])
         return None
 
     def _get_items(self) -> dict[int, dict[str, GLib.Variant]]:

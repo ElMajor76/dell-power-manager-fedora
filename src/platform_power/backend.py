@@ -44,41 +44,93 @@ from dataclasses import dataclass, field
 
 from . import sysfs
 
-# --- Category matching for dell-wmi-sysman attributes ----------------------
+# --- Category matching and filtering for dell-wmi-sysman attributes --------
 #
-# Dell does not publish a stable machine-readable list of BIOS token names,
-# and they vary across BIOS revisions and product lines. Matching on the
-# human-readable display_name substring is the only approach that is not
-# tied to one specific firmware dump, and it degrades gracefully: an
-# attribute that matches nothing still appears in "other" instead of
-# vanishing.
+# Only attributes genuinely related to power management, thermal, battery,
+# and device charging are exposed. Non-power BIOS settings (TPM, Secure Boot,
+# remote wipe, BIOS reset, passwords, etc.) are strictly blacklisted.
+
+_FORBIDDEN_KEYWORDS: tuple[str, ...] = (
+    "reset", "wipe", "password", "pwd", "admin", "setup", "lock",
+    "tpm", "secureboot", "tamper", "intrusion", "boot", "uefi", "fota",
+    "capsule", "asset", "tag", "service", "macaddr", "ipv", "pxe",
+    "wireless", "wlan", "wwan", "bluetooth", "camera", "microphone",
+    "fingerprint", "speaker", "audio", "virtualization", "vt", "txt",
+    "sata", "raid", "pcie", "dma", "kernel", "abi", "amt", "absolute",
+    "telemetry", "hotkey", "supportassist", "recovery", "pending_reboot",
+)
+
+_EXEMPT_ATTRIBUTES: set[str] = {
+    "TypeCDockAudio",
+    "TypeCDockLan",
+    "TypeCDockOverride",
+}
+
 _CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
-    "thermal": ("thermal management", "fan", "cooling"),
-    "peak_shift": ("peak shift",),
+    "battery_mode": (
+        "primarybattcharge",
+        "batterychargeconfiguration",
+        "battery configuration",
+        "charging mode",
+        "primarily ac use",
+        "express charge",
+        "adaptive charging",
+    ),
+    "peak_shift": (
+        "peakshift",
+        "peak shift",
+    ),
     "advanced_charge": (
+        "advbatterycharge",
         "advanced battery charge",
-        "battery charge configuration",
+        "customcharge",
         "custom charge",
         "charging schedule",
     ),
-    "usb_c": ("usb powershare", "usb-c", "type-c", "type c", "powershare", "usb wake"),
-    "battery_mode": (
-        "primarily ac use",
-        "primarily ac",
-        "express charge",
-        "adaptive charging",
-        "battery charging mode",
-        "charging mode",
+    "thermal": (
+        "thermalmanagement",
+        "thermal management",
+        "fan",
+        "cooling",
+    ),
+    "usb_c": (
+        "usbpowershare",
+        "powershare",
+        "usb-c",
+        "type-c",
+        "type c",
+        "typec",
+        "wakeondock",
+        "videopoweronlyports",
+    ),
+    "power_options": (
+        "poweronlidopen",
+        "wakeonac",
+        "wakeonlan",
+        "blocksleep",
+        "powerwarn",
+        "autoon",
+        "backlighttimeout",
+        "early keyboard backlight",
     ),
 }
 
 
-def _categorize(display_name: str) -> str:
-    name = display_name.lower()
+def _categorize(attr_id: str, display_name: str) -> str | None:
+    text = f"{attr_id} {display_name}".lower()
+
+    if attr_id not in _EXEMPT_ATTRIBUTES and any(fb in text for fb in _FORBIDDEN_KEYWORDS):
+        return None
+
     for category, keywords in _CATEGORY_KEYWORDS.items():
-        if any(keyword in name for keyword in keywords):
+        if any(keyword in text for keyword in keywords):
             return category
-    return "other"
+
+    # Only accept in "other" if explicitly matching power/energy/thermal keywords
+    if any(k in text for k in ("power", "energy", "battery", "charge", "thermal", "cooling", "sleep", "wake", "ac", "lid")):
+        return "power_options"
+
+    return None
 
 
 @dataclass
@@ -108,12 +160,7 @@ class FirmwareAttribute:
 
 
 def find_sysman_root() -> str | None:
-    """Locate the dell-wmi-sysman instance directory.
-
-    It is normally ``dell-wmi-sysman`` but some BIOS/driver combinations
-    (and the Alienware variant of the driver) register it under a
-    slightly different name, so this scans instead of hard-coding it.
-    """
+    """Locate the dell-wmi-sysman instance directory."""
     for name in sysfs.list_dir(sysfs.FIRMWARE_ATTR_ROOT):
         if "sysman" in name.lower() or "dell" in name.lower():
             return f"{sysfs.FIRMWARE_ATTR_ROOT}/{name}"
@@ -129,13 +176,17 @@ def read_firmware_attributes() -> list[FirmwareAttribute]:
     for attr_id in sysfs.list_dir(attrs_dir):
         base = f"{attrs_dir}/{attr_id}"
         display_name = sysfs.read_str(f"{base}/display_name") or attr_id
+
+        category = _categorize(attr_id, display_name)
+        if category is None:
+            continue
+
         attr_type = sysfs.read_str(f"{base}/type") or "unknown"
         current_value = sysfs.read_str(f"{base}/current_value")
 
         possible_values: list[str] = []
         raw_possible = sysfs.read_str(f"{base}/possible_values")
         if raw_possible:
-            # dell-wmi-sysman separates choices with ';'
             possible_values = [v for v in raw_possible.split(";") if v]
 
         result.append(
@@ -148,7 +199,7 @@ def read_firmware_attributes() -> list[FirmwareAttribute]:
                 min_value=sysfs.read_int(f"{base}/min_value"),
                 max_value=sysfs.read_int(f"{base}/max_value"),
                 scalar_increment=sysfs.read_int(f"{base}/scalar_increment"),
-                category=_categorize(display_name),
+                category=category,
             )
         )
     return result
@@ -158,10 +209,17 @@ def set_firmware_attribute(attr_id: str, value: str) -> None:
     root = find_sysman_root()
     if root is None:
         raise FileNotFoundError("dell-wmi-sysman is not present on this system")
-    path = f"{root}/attributes/{attr_id}/current_value"
-    if not sysfs.exists(path):
+    base = f"{root}/attributes/{attr_id}"
+    if not sysfs.exists(f"{base}/current_value"):
         raise FileNotFoundError(f"unknown firmware attribute: {attr_id}")
-    sysfs.write_str(path, value)
+
+    display_name = sysfs.read_str(f"{base}/display_name") or attr_id
+    if _categorize(attr_id, display_name) is None:
+        raise ValueError(
+            f"La modification de l'attribut '{attr_id}' n'est pas autorisée via Dell Power Manager."
+        )
+
+    sysfs.write_str(f"{base}/current_value", value)
 
 
 def sysman_is_locked() -> bool:
@@ -230,6 +288,17 @@ def read_battery(name: str) -> dict:
     start_threshold = sysfs.read_int(f"{base}/charge_control_start_threshold")
     end_threshold = sysfs.read_int(f"{base}/charge_control_end_threshold")
 
+    # Dell BIOS native charge mode if available
+    charge_mode = None
+    charge_mode_choices: list[str] = []
+    sysman = find_sysman_root()
+    if sysman:
+        mode_path = f"{sysman}/attributes/PrimaryBattChargeCfg"
+        if sysfs.exists(mode_path):
+            charge_mode = sysfs.read_str(f"{mode_path}/current_value")
+            raw_choices = sysfs.read_str(f"{mode_path}/possible_values") or ""
+            charge_mode_choices = [c for c in raw_choices.split(";") if c]
+
     return {
         "name": name,
         "model_name": sysfs.read_str(f"{base}/model_name"),
@@ -243,17 +312,37 @@ def read_battery(name: str) -> dict:
         "charge_threshold_supported": start_threshold is not None and end_threshold is not None,
         "charge_start_threshold": start_threshold,
         "charge_end_threshold": end_threshold,
+        "charge_mode": charge_mode,
+        "charge_mode_choices": charge_mode_choices,
     }
+
+
+def set_battery_charge_mode(mode: str) -> None:
+    root = find_sysman_root()
+    if root is None:
+        raise FileNotFoundError("dell-wmi-sysman is not present on this system")
+    path = f"{root}/attributes/PrimaryBattChargeCfg/current_value"
+    if not sysfs.exists(path):
+        raise FileNotFoundError("PrimaryBattChargeCfg is not supported on this machine")
+    possible = (sysfs.read_str(f"{root}/attributes/PrimaryBattChargeCfg/possible_values") or "").split(";")
+    possible = [p for p in possible if p]
+    if possible and mode not in possible:
+        raise ValueError(f"'{mode}' is not one of {possible}")
+    sysfs.write_str(path, mode)
 
 
 def set_charge_thresholds(name: str, start: int, end: int) -> None:
     if not (0 <= start < end <= 100):
-        raise ValueError("thresholds must satisfy 0 <= start < end <= 100")
+        raise ValueError("Le seuil de début doit être inférieur au seuil de fin (entre 0 et 100 %).")
+    if (end - start) < 1:
+        raise ValueError("L'écart entre le seuil de début et de fin doit être d'au moins 1 %.")
+
     base = f"{sysfs.POWER_SUPPLY_ROOT}/{name}"
     start_path = f"{base}/charge_control_start_threshold"
     end_path = f"{base}/charge_control_end_threshold"
     if not (sysfs.exists(start_path) and sysfs.exists(end_path)):
         raise FileNotFoundError(f"{name} does not expose charge thresholds on this kernel")
+
     # Lower the end threshold first only when it's safe to do so (avoids a
     # transient state where start > end gets rejected by the driver).
     current_end = sysfs.read_int(end_path) or 100
@@ -263,6 +352,28 @@ def set_charge_thresholds(name: str, start: int, end: int) -> None:
     else:
         sysfs.write_str(end_path, str(end))
         sysfs.write_str(start_path, str(start))
+
+    # Synchronize with dell-wmi-sysman if available: Dell firmware requires
+    # PrimaryBattChargeCfg to be 'Custom' for custom thresholds to take effect.
+    try:
+        set_battery_charge_mode("Custom")
+    except Exception:
+        pass
+
+    root = find_sysman_root()
+    if root:
+        cust_start = f"{root}/attributes/CustomChargeStart/current_value"
+        cust_stop = f"{root}/attributes/CustomChargeStop/current_value"
+        if sysfs.exists(cust_start):
+            try:
+                sysfs.write_str(cust_start, str(start))
+            except Exception:
+                pass
+        if sysfs.exists(cust_stop):
+            try:
+                sysfs.write_str(cust_stop, str(end))
+            except Exception:
+                pass
 
 
 # --- Aggregate state ----------------------------------------------------------

@@ -70,6 +70,34 @@ class DaemonClient:
             raise RuntimeError(_friendly_dbus_error(exc)) from exc
         return result.unpack() if reply_types else None
 
+    def _call_async(
+        self,
+        method: str,
+        arg_types: str,
+        args: tuple,
+        reply_types: str = "",
+        on_done: Callable[[any], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
+        def _callback(proxy, result):
+            try:
+                res = proxy.call_finish(result)
+                val = res.unpack() if (reply_types and res) else None
+                if on_done:
+                    on_done(val)
+            except GLib.Error as exc:
+                if on_error:
+                    on_error(RuntimeError(_friendly_dbus_error(exc)))
+
+        self._proxy.call(
+            method,
+            GLib.Variant(f"({arg_types})", args) if arg_types else None,
+            Gio.DBusCallFlags.NONE,
+            -1,
+            None,
+            _callback,
+        )
+
     def get_state(self) -> dict:
         (state_json,) = self._call("GetState", "", (), "s")
         return json.loads(state_json)
@@ -77,15 +105,57 @@ class DaemonClient:
     def set_platform_profile(self, profile: str) -> None:
         self._call("SetPlatformProfile", "s", (profile,))
 
+    def set_platform_profile_async(
+        self,
+        profile: str,
+        on_done: Callable[[], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
+        self._call_async("SetPlatformProfile", "s", (profile,), on_done=lambda _: on_done() if on_done else None, on_error=on_error)
+
     def set_charge_thresholds(self, battery: str, start: int, end: int) -> None:
         self._call("SetChargeThresholds", "sii", (battery, start, end))
 
+    def set_charge_thresholds_async(
+        self,
+        battery: str,
+        start: int,
+        end: int,
+        on_done: Callable[[], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
+        self._call_async("SetChargeThresholds", "sii", (battery, start, end), on_done=lambda _: on_done() if on_done else None, on_error=on_error)
+
+    def set_battery_charge_mode(self, mode: str) -> None:
+        self._call("SetBatteryChargeMode", "s", (mode,))
+
+    def set_battery_charge_mode_async(
+        self,
+        mode: str,
+        on_done: Callable[[], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
+        self._call_async("SetBatteryChargeMode", "s", (mode,), on_done=lambda _: on_done() if on_done else None, on_error=on_error)
+
     def set_firmware_attribute(self, attribute_id: str, value: str) -> None:
         self._call("SetFirmwareAttribute", "ss", (attribute_id, value))
+
+    def set_firmware_attribute_async(
+        self,
+        attribute_id: str,
+        value: str,
+        on_done: Callable[[], None] | None = None,
+        on_error: Callable[[Exception], None] | None = None,
+    ) -> None:
+        self._call_async("SetFirmwareAttribute", "ss", (attribute_id, value), on_done=lambda _: on_done() if on_done else None, on_error=on_error)
 
 
 def _friendly_dbus_error(exc: GLib.Error) -> str:
     message = exc.message if hasattr(exc, "message") else str(exc)
     if "AccessDenied" in message or "not authorized" in message:
         return "Permission refusée : authentification administrateur requise ou annulée."
+    if "Invalid argument" in message or "EINVAL" in message:
+        return "Valeur non supportée par le matériel ou le BIOS."
+    if "Input/output error" in message or "EIO" in message:
+        return "Erreur d'entrée/sortie : le réglage est peut-être verrouillé par le BIOS."
     return message

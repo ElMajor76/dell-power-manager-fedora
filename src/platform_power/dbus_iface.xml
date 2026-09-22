@@ -21,6 +21,12 @@
       <arg type="i" name="end" direction="in"/>
     </method>
 
+    <!-- Set native Dell battery charging mode (Adaptive, Standard, Express, PrimAcUse, Custom).
+         Requires io.github.nplacide95.platform-power.set-charge-threshold. -->
+    <method name="SetBatteryChargeMode">
+      <arg type="s" name="mode" direction="in"/>
+    </method>
+
     <!-- Generic BIOS/firmware-attribute write (Peak Shift, Advanced
          Charge Configuration, USB-C PowerShare, ...). Requires
          io.github.nplacide95.platform-power.set-firmware-attribute. -->

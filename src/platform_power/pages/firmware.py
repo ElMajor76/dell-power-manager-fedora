@@ -11,31 +11,34 @@ from gi.repository import Adw, GObject, Gtk
 _CATEGORY_TITLES = {
     "peak_shift": (
         "Peak Shift",
-        "Fait basculer l'ordinateur sur batterie pendant les heures de pointe "
-        "électrique définies en BIOS.",
+        "Bascule l'alimentation sur batterie pendant les heures de pointe "
+        "électrique configurées dans le BIOS.",
     ),
     "advanced_charge": (
         "Charge avancée programmée",
-        "Planifie des plages horaires de charge complète, comme le mode "
-        "« Advanced Battery Charge Configuration » de Dell.",
+        "Planifie des plages horaires de charge complète de la batterie "
+        "(mode Advanced Battery Charge Configuration).",
     ),
     "usb_c": (
-        "USB-C / PowerShare",
-        "Options d'alimentation et de partage d'énergie des ports USB-C.",
+        "USB-C & PowerShare",
+        "Options d'alimentation et de partage d'énergie des ports USB-C et stations d'accueil.",
+    ),
+    "power_options": (
+        "Options d'alimentation & Allumage",
+        "Comportement à l'ouverture du capot, réveil sur secteur (Wake on AC/Dock) et gestion de veille.",
     ),
     "battery_mode": (
-        "Mode de charge",
-        "Modes de charge prédéfinis (Adaptive / Express Charge / Primarily AC use).",
+        "Mode de charge BIOS",
+        "Modes de charge configurés dans le firmware (Adaptive / Express Charge / Primarily AC use).",
     ),
-    "other": (
-        "Autres réglages d'alimentation du BIOS",
-        "Tout attribut exposé par le firmware qui n'a pas été reconnu "
-        "automatiquement mais reste modifiable ici.",
+    "thermal": (
+        "Gestion thermique BIOS",
+        "Réglages de ventilation et historique thermique enregistrés dans le firmware.",
     ),
 }
 
 # Preferred display order.
-_CATEGORY_ORDER = ["peak_shift", "advanced_charge", "usb_c", "battery_mode", "other"]
+_CATEGORY_ORDER = ["peak_shift", "advanced_charge", "usb_c", "power_options", "battery_mode", "thermal"]
 
 
 class _AttributeRow:
