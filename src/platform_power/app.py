@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import logging
+import os
 import sys
 
 import gi
 
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
-from gi.repository import Adw, Gio, GLib
+from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from .client import DaemonClient, DaemonUnavailable
 from .tray import TrayIndicator
@@ -48,6 +49,16 @@ class PlatformPowerApp(Adw.Application):
 
     def do_startup(self) -> None:
         Adw.Application.do_startup(self)
+
+        display = Gdk.Display.get_default()
+        if display:
+            theme = Gtk.IconTheme.get_for_display(display)
+            theme.add_search_path("/usr/share/icons")
+            local_icon_dir = os.path.join(
+                os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "icons"
+            )
+            if os.path.isdir(local_icon_dir):
+                theme.add_search_path(local_icon_dir)
 
         try:
             self._client = DaemonClient()

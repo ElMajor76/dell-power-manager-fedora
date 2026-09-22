@@ -85,6 +85,8 @@ install -Dm644 data/icons/io.github.nplacide95.PlatformPower_32.png \
     %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/io.github.nplacide95.PlatformPower.png
 install -Dm644 data/icons/io.github.nplacide95.PlatformPower.png \
     %{buildroot}%{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/temperature-symbolic.svg \
+    %{buildroot}%{_datadir}/icons/hicolor/scalable/status/temperature-symbolic.svg
 
 # AppStream metadata
 install -Dm644 data/io.github.nplacide95.PlatformPower.metainfo.xml \
@@ -119,6 +121,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_datadir}/polkit-1/actions/io.github.nplacide95.PlatformPower.policy
 %{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
 %{_datadir}/icons/hicolor/*/apps/io.github.nplacide95.PlatformPower.*
+%{_datadir}/icons/hicolor/*/status/temperature-symbolic.svg
 %{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 

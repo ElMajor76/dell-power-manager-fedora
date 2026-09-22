@@ -9,7 +9,7 @@ from gi.repository import Adw, GLib, Gtk
 from .client import DaemonClient, DaemonUnavailable
 from .pages.battery import BatteryPage
 from .pages.firmware import FirmwarePage
-from .pages.thermal import ThermalPage
+from .pages.thermal import ThermalPage, get_thermal_icon
 
 
 class PlatformPowerWindow(Adw.ApplicationWindow):
@@ -69,7 +69,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._firmware_page = FirmwarePage(self._set_firmware_attribute)
 
         self._stack.add_titled_with_icon(
-            self._thermal_page, "thermal", "Thermique", "temperature-symbolic"
+            self._thermal_page, "thermal", "Thermique", get_thermal_icon()
         )
         self._stack.add_titled_with_icon(
             self._battery_page, "battery", "Batterie", "battery-symbolic"

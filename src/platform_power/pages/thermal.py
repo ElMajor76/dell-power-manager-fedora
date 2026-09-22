@@ -6,7 +6,7 @@ import gi
 
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
-from gi.repository import Adw, GObject, Gtk
+from gi.repository import Adw, Gdk, GObject, Gtk
 
 # ACPI platform_profile choices as defined by the kernel
 # (Documentation/ABI/testing/sysfs-platform_profile), with the labels
@@ -21,11 +21,21 @@ _PROFILE_LABELS = {
 }
 
 
+def get_thermal_icon() -> str:
+    """Return temperature-symbolic if available in the theme, otherwise balanced power profile icon."""
+    display = Gdk.Display.get_default()
+    if display:
+        theme = Gtk.IconTheme.get_for_display(display)
+        if theme.has_icon("temperature-symbolic"):
+            return "temperature-symbolic"
+    return "power-profile-balanced-symbolic"
+
+
 class ThermalPage(Adw.PreferencesPage):
     __gtype_name__ = "PlatformPowerThermalPage"
 
     def __init__(self, on_set_profile: Callable[[str], None]) -> None:
-        super().__init__(title="Thermique", icon_name="temperature-symbolic")
+        super().__init__(title="Thermique", icon_name=get_thermal_icon())
         self._on_set_profile = on_set_profile
         self._choices: list[str] = []
         self._updating = False
