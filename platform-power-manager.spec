@@ -1,5 +1,5 @@
 Name:           platform-power-manager
-Version:        0.1.0
+Version:        0.2.0
 Release:        1%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
@@ -18,6 +18,7 @@ Requires:       python3-gobject
 Requires:       gtk4
 Requires:       libadwaita
 Requires:       polkit
+Requires:       libgudev
 Requires(post): systemd
 Requires(preun): systemd
 Requires(postun): systemd
@@ -122,6 +123,14 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Tue Sep 22 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-1
+- Security hardening: whitelist safe dell-wmi-sysman BIOS attributes and blacklist dangerous settings.
+- Direct Dell native charge modes integration (Adaptive, Express, Standard, Primarily AC, Custom).
+- Real-time uevent / sysfs change monitoring via libgudev and Gio.FileMonitor.
+- Asynchronous non-blocking D-Bus client calls preventing GUI freezes during Polkit auth.
+- Polkit system-bus-name subject hardening to prevent PID race conditions.
+- System tray StatusNotifierItem icon theme path and Wayland improvements.
+
 * Fri Sep 19 2025 Platform Power packaging <noreply@example.invalid> - 0.1.0-1
 - Initial packaging: thermal profile, battery charge thresholds,
   and dynamically-discovered dell-wmi-sysman BIOS power attributes

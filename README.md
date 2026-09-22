@@ -86,19 +86,19 @@ See `src/platform_power/backend.py` for the sysfs logic and
 Un paquet RPM prêt à l'emploi est directement disponible dans le dossier `packages/` du dépôt :
 
 ```bash
-sudo dnf install packages/platform-power-manager-0.1.0-1.fc44.noarch.rpm
+sudo dnf install packages/platform-power-manager-0.2.0-1.fc44.noarch.rpm
 ```
 
 ## Building the RPM
 
-On a Fedora machine (not this Windows one):
+Sur Fedora :
 
 ```bash
-sudo dnf install rpmdevtools python3-gobject gtk4-devel libadwaita-devel desktop-file-utils libappstream-glib
+sudo dnf install rpmdevtools python3-gobject gtk4-devel libadwaita-devel desktop-file-utils libappstream-glib libgudev
 rpmdev-setuptree
 
 # from the project root (this directory)
-VERSION=0.1.0
+VERSION=0.2.0
 tar --transform "s,^,platform-power-manager-$VERSION/," \
     -czf ~/rpmbuild/SOURCES/platform-power-manager-$VERSION.tar.gz \
     src bin data LICENSE README.md
@@ -110,11 +110,11 @@ rpmbuild -ba ~/rpmbuild/SPECS/platform-power-manager.spec
 The built RPM lands in `~/rpmbuild/RPMS/noarch/`. Install it with:
 
 ```bash
-sudo dnf install ~/rpmbuild/RPMS/noarch/platform-power-manager-0.1.0-1*.noarch.rpm
+sudo dnf install ~/rpmbuild/RPMS/noarch/platform-power-manager-0.2.0-1*.noarch.rpm
 ```
 
-`dnf` will pull in `python3-gobject`, `gtk4`, `libadwaita`, and
-`polkit` as runtime dependencies automatically.
+`dnf` will pull in `python3-gobject`, `gtk4`, `libadwaita`, `polkit`, and
+`libgudev` as runtime dependencies automatically.
 
 ## Running / troubleshooting
 
@@ -136,18 +136,14 @@ the RPM's `%post` D-Bus/polkit files not being picked up without a
 worth checking), or SELinux denials — check `journalctl -u
 platform-power-daemon` and `ausearch -m avc -ts recent` if so.
 
-## Known limitations (v0.1.0)
+## Known limitations
 
 - No automated way to enter a BIOS admin password — attributes behind
   one are shown read-only-in-practice with a warning banner.
 - Multi-battery systems (e.g. behind certain docks) only manage the
   first battery reported under `/sys/class/power_supply/`, same as
   Dell's own tool.
-- No live update on AC plug/unplug yet — the UI refreshes after every
-  change you make, but external state changes (like the battery status
-  flipping from Charging to Discharging) only show up next time you
-  open the app or trigger a refresh. Wiring up a `udev`/`upower`
-  signal watcher in the daemon is a natural follow-up.
 - Not submitted to Fedora's official repositories; this is a
   self-built/self-signed RPM for personal use unless you choose to
   package it properly for COPR or Fedora review later.
+
