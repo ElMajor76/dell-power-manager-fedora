@@ -1,4 +1,4 @@
-# Dell Power Manager
+# Dell Power Manager for Fedora Linux based laptops
 
 GTK4/libadwaita app + privileged D-Bus daemon that brings the same
 *category* of settings as Dell Command | Power Manager (Windows) to
