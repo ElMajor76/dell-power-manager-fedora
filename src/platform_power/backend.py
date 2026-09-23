@@ -90,8 +90,14 @@ _CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
     "thermal": (
         "thermalmanagement",
         "thermal management",
+        "thermallogclear",
         "fan",
         "cooling",
+    ),
+    "auto_on": (
+        "autoon",
+        "auto-on",
+        "auto on",
     ),
     "usb_c": (
         "usbpowershare",
@@ -103,15 +109,25 @@ _CATEGORY_KEYWORDS: dict[str, tuple[str, ...]] = {
         "wakeondock",
         "videopoweronlyports",
     ),
+    "keyboard_backlight": (
+        "kbdbacklight",
+        "backlighttimeout",
+        "signoflifebykbd",
+        "keyboard backlight",
+    ),
+    "cpu_performance": (
+        "cpucoreext",
+        "active core selection",
+        "core selection",
+    ),
     "power_options": (
         "poweronlidopen",
+        "lidswitch",
         "wakeonac",
         "wakeonlan",
         "blocksleep",
         "powerwarn",
-        "autoon",
-        "backlighttimeout",
-        "early keyboard backlight",
+        "powerlogclear",
     ),
 }
 

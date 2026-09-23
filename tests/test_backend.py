@@ -16,6 +16,9 @@ def test_categorize_allowed_power_attributes():
     assert backend._categorize("TypeCDockOverride", "Type-C Dock Override") == "usb_c"
     assert backend._categorize("PowerOnLidOpen", "Power On Lid Open") == "power_options"
     assert backend._categorize("WakeOnAc", "Wake on AC") == "power_options"
+    assert backend._categorize("AutoOn", "Auto On Time") == "auto_on"
+    assert backend._categorize("KbdBacklightTimeoutAc", "Keyboard Backlight with AC") == "keyboard_backlight"
+    assert backend._categorize("CpuCoreExt", "CPU Core Configuration") == "cpu_performance"
 
 
 def test_categorize_dangerous_attributes_blacklisted():
@@ -98,4 +101,37 @@ def test_set_battery_charge_mode(monkeypatch, tmp_path):
 
     with pytest.raises(ValueError, match="not one of"):
         backend.set_battery_charge_mode("NonExistentMode")
+
+
+def test_firmware_page_mappings():
+    from platform_power.pages.firmware import (
+        _CATEGORY_ORDER,
+        _resolve_category,
+        _get_attr_info,
+        _VALUE_TRANSLATIONS,
+    )
+
+    assert len(_CATEGORY_ORDER) == 10
+    assert _CATEGORY_ORDER[0] == "battery_mode"
+    assert _CATEGORY_ORDER[1] == "advanced_charge"
+    assert _CATEGORY_ORDER[2] == "peak_shift"
+    assert _CATEGORY_ORDER[3] == "thermal"
+    assert _CATEGORY_ORDER[4] == "auto_on"
+
+    # Category resolution
+    assert _resolve_category({"id": "AutoOnHr"}) == "auto_on"
+    assert _resolve_category({"id": "KbdBacklightTimeoutAc"}) == "keyboard_backlight"
+    assert _resolve_category({"id": "CpuCoreExt"}) == "cpu_performance"
+    assert _resolve_category({"id": "UnknownAttr", "category": "power_options"}) == "power_options"
+    assert _resolve_category({"id": "TotallyUnknown", "category": "foo"}) == "other"
+
+    # Metadata & french translations
+    title, subtitle = _get_attr_info({"id": "AutoOnHr"})
+    assert "Heure" in title
+    assert len(subtitle) > 0
+
+    assert _VALUE_TRANSLATIONS["Disabled"] == "Désactivé"
+    assert _VALUE_TRANSLATIONS["Enabled"] == "Activé"
+    assert _VALUE_TRANSLATIONS["UltraPerformance"] == "Performances maximales"
+
 

@@ -1,6 +1,6 @@
 Name:           platform-power-manager
 Version:        0.2.0
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
 License:        MIT
@@ -138,6 +138,11 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-4
+- Reorganize BIOS Advanced categories into logical, user-friendly groups (battery, charging, peak shift, thermal, auto on, power options, USB-C, keyboard backlight, CPU performance).
+- Localize BIOS Advanced tab to French: friendly titles, descriptive subtitles, and translated enum values.
+- Maintain full integrity with underlying dell-wmi-sysman sysfs write tokens.
+
 * Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-3
 - Autostart on desktop session login via /etc/xdg/autostart/ with --minimized.
 - Remove Quitter option from system tray menu so application behaves as a persistent system component.
