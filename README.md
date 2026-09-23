@@ -1,11 +1,16 @@
-# Platform Power
+# Dell Power Manager
 
 GTK4/libadwaita app + privileged D-Bus daemon that brings the same
 *category* of settings as Dell Command | Power Manager (Windows) to
 Fedora GNOME/KDE: thermal/performance profile, battery charge-threshold
 management, and — where the firmware supports it — BIOS-level extras
 like Peak Shift, scheduled/advanced battery charging, and USB-C
-PowerShare.
+PowerShare. Also includes a system tray indicator with quick profile
+switching.
+
+The project's internal codename is still `platform-power` (package,
+binaries, D-Bus name), which you'll see throughout this repo and the
+source tree.
 
 **This is an independent, original implementation, not a port or a
 decompilation of Dell's Windows software.** It is not affiliated with
@@ -22,9 +27,10 @@ standard upstream Linux kernel interfaces:
 
 ## Important: hardware/firmware compatibility
 
-This was built and packaged from a Windows machine (no Fedora available
-to test against at build time), so **it has not been run against real
-hardware yet.** Two things follow from that:
+This has been validated end-to-end on a real Dell laptop running Fedora
+(daemon running as a systemd service, polkit prompts, and sysfs writes
+all exercised against actual hardware), but firmware attribute names
+still vary by model and BIOS revision. Two things follow from that:
 
 1. **`platform_profile` and battery thresholds** are well-documented,
    stable kernel ABIs — these should work as described on any recent
@@ -79,14 +85,20 @@ BIOS admin password on your behalf.
   the tooltip, close-to-tray, and a `--minimized` / `-m` command-line option.
 
 See `src/platform_power/backend.py` for the sysfs logic and
-`src/platform_power/dbus_iface.xml` for the D-Bus contract.
+`src/platform_power/dbus_iface.xml` for the D-Bus contract. Every
+identifier that reaches a sysfs path from a D-Bus caller (battery name,
+firmware attribute id) is validated against the real, discovered list
+(`list_batteries()` / `sysfs.list_dir(...)`) before the path is built,
+to rule out directory-traversal payloads reaching an unexpected file.
 
 ## Installation rapide (RPM pré-compilé)
 
-Un paquet RPM prêt à l'emploi est directement disponible dans le dossier `packages/` du dépôt :
+Le paquet RPM le plus récent est joint aux
+[releases GitHub](https://github.com/ElMajor76/dell-power-manager-fedora/releases)
+et se trouve aussi dans le dossier `packages/` du dépôt :
 
 ```bash
-sudo dnf install packages/platform-power-manager-0.2.0-1.fc44.noarch.rpm
+sudo dnf install packages/platform-power-manager-0.2.0-5.fc44.noarch.rpm
 ```
 
 ## Building the RPM
@@ -110,7 +122,7 @@ rpmbuild -ba ~/rpmbuild/SPECS/platform-power-manager.spec
 The built RPM lands in `~/rpmbuild/RPMS/noarch/`. Install it with:
 
 ```bash
-sudo dnf install ~/rpmbuild/RPMS/noarch/platform-power-manager-0.2.0-1*.noarch.rpm
+sudo dnf install ~/rpmbuild/RPMS/noarch/platform-power-manager-$VERSION*.noarch.rpm
 ```
 
 `dnf` will pull in `python3-gobject`, `gtk4`, `libadwaita`, `polkit`, and
@@ -146,4 +158,11 @@ platform-power-daemon` and `ausearch -m avc -ts recent` if so.
 - Not submitted to Fedora's official repositories; this is a
   self-built/self-signed RPM for personal use unless you choose to
   package it properly for COPR or Fedora review later.
+
+## Releases
+
+Tagged releases (with pre-built RPMs attached) are published on the
+[GitHub Releases page](https://github.com/ElMajor76/dell-power-manager-fedora/releases).
+See `platform-power-manager.spec`'s `%changelog` for the detailed,
+version-by-version history.
 
