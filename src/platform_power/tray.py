@@ -148,8 +148,6 @@ ID_PROFILE_HEADER = 3
 ID_PROFILE_BASE = 10
 ID_SEP_2 = 50
 ID_OPEN_APP = 51
-ID_SEP_3 = 52
-ID_QUIT_APP = 53
 
 SNI_PATH = "/io/github/nplacide95/PlatformPower/StatusNotifierItem"
 MENU_PATH = "/io/github/nplacide95/PlatformPower/StatusNotifierItem/Menu"
@@ -162,7 +160,7 @@ class TrayIndicator:
         self,
         on_open: Callable[[], None],
         on_set_profile: Callable[[str], None],
-        on_quit: Callable[[], None],
+        on_quit: Callable[[], None] | None = None,
     ) -> None:
         self._on_open = on_open
         self._on_set_profile = on_set_profile
@@ -508,15 +506,6 @@ class TrayIndicator:
             "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
         }
 
-        # 52: Separator
-        items[ID_SEP_3] = {"type": GLib.Variant("s", "separator")}
-
-        # 53: Quit
-        items[ID_QUIT_APP] = {
-            "label": GLib.Variant("s", "Quitter"),
-            "icon-name": GLib.Variant("s", "application-exit-symbolic"),
-        }
-
         return items
 
     def _build_layout(self) -> tuple[int, dict[str, GLib.Variant], list]:
@@ -591,8 +580,6 @@ class TrayIndicator:
                 GLib.idle_add(self._on_set_profile, choice)
         elif item_id == ID_OPEN_APP:
             GLib.idle_add(self._on_open)
-        elif item_id == ID_QUIT_APP:
-            GLib.idle_add(self._on_quit)
 
     def destroy(self) -> None:
         if self._bus is not None:

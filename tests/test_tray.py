@@ -72,3 +72,8 @@ def test_tray_dbusmenu_properties(tray):
     items = tray._get_items()
     assert ID_OPEN_APP in items
     assert items[ID_OPEN_APP]["icon-name"].unpack() == "io.github.nplacide95.PlatformPower"
+
+    # Ensure there is NO 'Quitter' option in the system tray menu
+    for item in items.values():
+        if "label" in item:
+            assert "quitter" not in item["label"].unpack().lower()

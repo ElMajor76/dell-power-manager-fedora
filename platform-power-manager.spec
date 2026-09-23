@@ -1,6 +1,6 @@
 Name:           platform-power-manager
 Version:        0.2.0
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
 License:        MIT
@@ -98,8 +98,13 @@ install -Dm644 data/icons/temperature-symbolic.svg \
 install -Dm644 data/io.github.nplacide95.PlatformPower.metainfo.xml \
     %{buildroot}%{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
+# autostart on session login (minimized)
+install -Dm644 data/io.github.nplacide95.PlatformPower.autostart.desktop \
+    %{buildroot}%{_sysconfdir}/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
+
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
+desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
 appstream-util validate-relax --nonet \
     %{buildroot}%{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
@@ -126,12 +131,18 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_sysconfdir}/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf
 %{_datadir}/polkit-1/actions/io.github.nplacide95.PlatformPower.policy
 %{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
+%{_sysconfdir}/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
 %{_datadir}/icons/hicolor/*/apps/io.github.nplacide95.PlatformPower.*
 %{_datadir}/icons/hicolor/*/status/temperature-symbolic.svg
 %{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-3
+- Autostart on desktop session login via /etc/xdg/autostart/ with --minimized.
+- Remove Quitter option from system tray menu so application behaves as a persistent system component.
+- Always hide window on close request or shortcuts rather than terminating.
+
 * Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-2
 - Fix system tray StatusNotifierItem icon: unset IconThemePath to use standard theme search path.
 - Add IconPixmap support for reliable app icon rendering across desktop environments.

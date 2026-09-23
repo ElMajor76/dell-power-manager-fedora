@@ -42,11 +42,8 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
     def _on_close_request(self, window: Gtk.Window) -> bool:
         if self._quitting:
             return False
-        app = self.get_application()
-        if app and getattr(app, "has_tray", False):
-            self.set_visible(False)
-            return True
-        return False
+        self.set_visible(False)
+        return True
 
     # -- UI scaffolding -----------------------------------------------------
 

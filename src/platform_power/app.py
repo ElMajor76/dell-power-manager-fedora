@@ -70,7 +70,6 @@ class PlatformPowerApp(Adw.Application):
         self._tray = TrayIndicator(
             on_open=self.present_window,
             on_set_profile=self._set_platform_profile,
-            on_quit=self.quit_application,
         )
 
         if self._client is not None:
@@ -80,10 +79,14 @@ class PlatformPowerApp(Adw.Application):
             except Exception:
                 pass
 
-        quit_action = Gio.SimpleAction.new("quit", None)
-        quit_action.connect("activate", lambda *_: self.quit_application())
-        self.add_action(quit_action)
-        self.set_accels_for_action("app.quit", ["<primary>q"])
+        close_action = Gio.SimpleAction.new("quit", None)
+        close_action.connect("activate", lambda *_: self._on_close_shortcut())
+        self.add_action(close_action)
+        self.set_accels_for_action("app.quit", ["<primary>q", "<primary>w"])
+
+    def _on_close_shortcut(self) -> None:
+        if self._window is not None:
+            self._window.set_visible(False)
 
     def do_activate(self) -> None:
         if self._window is None:
