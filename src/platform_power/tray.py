@@ -11,6 +11,7 @@ extension, KDE Plasma, XFCE, Sway/Waybar) allowing the user to:
 from __future__ import annotations
 
 import logging
+import os
 from collections.abc import Callable
 
 import gi
@@ -29,6 +30,7 @@ SNI_XML = """
     <property name="Title" type="s" access="read"/>
     <property name="Status" type="s" access="read"/>
     <property name="IconName" type="s" access="read"/>
+    <property name="IconPixmap" type="a(iiay)" access="read"/>
     <property name="IconThemePath" type="s" access="read"/>
     <property name="Menu" type="o" access="read"/>
     <property name="ItemIsMenu" type="b" access="read"/>
@@ -177,6 +179,7 @@ class TrayIndicator:
         self._battery_summary: str = ""
         self._revision: int = 1
         self._is_available: bool = False
+        self._cached_icon_pixmap: GLib.Variant | None = None
 
         self._init_dbus()
 
@@ -301,6 +304,73 @@ class TrayIndicator:
                 None,
             )
 
+    def _get_icon_pixmap(self) -> GLib.Variant:
+        if self._cached_icon_pixmap is not None:
+            return self._cached_icon_pixmap
+
+        pixmaps: list[tuple[int, int, bytes]] = []
+
+        local_icon_dir = os.path.join(
+            os.path.dirname(os.path.dirname(os.path.dirname(__file__))), "data", "icons"
+        )
+        candidates = [
+            os.path.join(local_icon_dir, "io.github.nplacide95.PlatformPower.png"),
+            os.path.join(local_icon_dir, "io.github.nplacide95.PlatformPower_256.png"),
+            "/usr/share/icons/hicolor/256x256/apps/io.github.nplacide95.PlatformPower.png",
+            "/usr/share/icons/hicolor/32x32/apps/io.github.nplacide95.PlatformPower.png",
+            "/usr/share/pixmaps/io.github.nplacide95.PlatformPower.png",
+            os.path.join(local_icon_dir, "io.github.nplacide95.PlatformPower.svg"),
+            "/usr/share/icons/hicolor/scalable/apps/io.github.nplacide95.PlatformPower.svg",
+        ]
+
+        found_path: str | None = None
+        for path in candidates:
+            if os.path.isfile(path):
+                found_path = path
+                break
+
+        if found_path:
+            try:
+                gi.require_version("GdkPixbuf", "2.0")
+                from gi.repository import GdkPixbuf
+
+                for target_sz in (22, 24, 32, 48):
+                    try:
+                        pb = GdkPixbuf.Pixbuf.new_from_file_at_scale(
+                            found_path, target_sz, target_sz, True
+                        )
+                        if not pb.get_has_alpha():
+                            pb = pb.add_alpha(False, 0, 0, 0)
+                        w = pb.get_width()
+                        h = pb.get_height()
+                        stride = pb.get_rowstride()
+                        pixels = pb.get_pixels()
+
+                        # SNI spec expects ARGB in network byte order (big-endian: A, R, G, B)
+                        argb = bytearray(w * h * 4)
+                        for y in range(h):
+                            for x in range(w):
+                                src = y * stride + x * 4
+                                dst = (y * w + x) * 4
+                                argb[dst] = pixels[src + 3]      # Alpha
+                                argb[dst + 1] = pixels[src]      # Red
+                                argb[dst + 2] = pixels[src + 1]  # Green
+                                argb[dst + 3] = pixels[src + 2]  # Blue
+                        pixmaps.append((w, h, bytes(argb)))
+                    except Exception as exc:
+                        log.debug(
+                            "Error creating pixmap %dx%d from %s: %s",
+                            target_sz,
+                            target_sz,
+                            found_path,
+                            exc,
+                        )
+            except Exception as exc:
+                log.debug("GdkPixbuf not available for IconPixmap: %s", exc)
+
+        self._cached_icon_pixmap = GLib.Variant("a(iiay)", pixmaps)
+        return self._cached_icon_pixmap
+
     # -- StatusNotifierItem D-Bus Handlers ----------------------------------
 
     def _handle_sni_get_prop(
@@ -321,8 +391,10 @@ class TrayIndicator:
             return GLib.Variant("s", "Active")
         elif prop == "IconName":
             return GLib.Variant("s", "io.github.nplacide95.PlatformPower")
+        elif prop == "IconPixmap":
+            return self._get_icon_pixmap()
         elif prop == "IconThemePath":
-            return GLib.Variant("s", "/usr/share/icons/hicolor")
+            return GLib.Variant("s", "")
         elif prop == "Menu":
             return GLib.Variant("o", MENU_PATH)
         elif prop == "ItemIsMenu":
@@ -334,11 +406,12 @@ class TrayIndicator:
             desc = f"Profil : {prof_label}"
             if self._battery_summary:
                 desc += f"  •  Batterie : {self._battery_summary}"
+            pixmaps = self._get_icon_pixmap().unpack()
             return GLib.Variant(
                 "(sa(iiay)ss)",
                 (
                     "io.github.nplacide95.PlatformPower",
-                    [],
+                    pixmaps,
                     "Dell Power Manager",
                     desc,
                 ),
@@ -389,7 +462,7 @@ class TrayIndicator:
         elif prop == "Status":
             return GLib.Variant("s", "normal")
         elif prop == "IconThemePath":
-            return GLib.Variant("as", ["/usr/share/icons/hicolor"])
+            return GLib.Variant("as", [])
         return None
 
     def _get_items(self) -> dict[int, dict[str, GLib.Variant]]:

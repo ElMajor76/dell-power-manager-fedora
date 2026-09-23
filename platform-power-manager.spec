@@ -1,6 +1,6 @@
 Name:           platform-power-manager
 Version:        0.2.0
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
 License:        MIT
@@ -83,6 +83,12 @@ install -Dm644 data/icons/io.github.nplacide95.PlatformPower_48.png \
     %{buildroot}%{_datadir}/icons/hicolor/48x48/apps/io.github.nplacide95.PlatformPower.png
 install -Dm644 data/icons/io.github.nplacide95.PlatformPower_32.png \
     %{buildroot}%{_datadir}/icons/hicolor/32x32/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_24.png \
+    %{buildroot}%{_datadir}/icons/hicolor/24x24/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_22.png \
+    %{buildroot}%{_datadir}/icons/hicolor/22x22/apps/io.github.nplacide95.PlatformPower.png
+install -Dm644 data/icons/io.github.nplacide95.PlatformPower_16.png \
+    %{buildroot}%{_datadir}/icons/hicolor/16x16/apps/io.github.nplacide95.PlatformPower.png
 install -Dm644 data/icons/io.github.nplacide95.PlatformPower.png \
     %{buildroot}%{_datadir}/pixmaps/io.github.nplacide95.PlatformPower.png
 install -Dm644 data/icons/temperature-symbolic.svg \
@@ -126,6 +132,11 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-2
+- Fix system tray StatusNotifierItem icon: unset IconThemePath to use standard theme search path.
+- Add IconPixmap support for reliable app icon rendering across desktop environments.
+- Install native 16x16, 22x22, and 24x24 app icons.
+
 * Tue Sep 22 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-1
 - Security hardening: whitelist safe dell-wmi-sysman BIOS attributes and blacklist dangerous settings.
 - Direct Dell native charge modes integration (Adaptive, Express, Standard, Primarily AC, Custom).
