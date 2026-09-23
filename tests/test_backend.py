@@ -49,9 +49,40 @@ def test_set_firmware_attribute_rejects_blacklisted(monkeypatch, tmp_path):
         backend.set_firmware_attribute("reset_bios", "Reset")
 
 
+def test_set_firmware_attribute_unknown_or_traversal(monkeypatch, tmp_path):
+    root = tmp_path / "dell-wmi-sysman"
+    attrs = root / "attributes"
+    attrs.mkdir(parents=True)
+
+    # Legitimate attribute
+    legit = attrs / "ThermalManagement"
+    legit.mkdir()
+    (legit / "current_value").write_text("Optimized\n", encoding="utf-8")
+    (legit / "display_name").write_text("Thermal Management\n", encoding="utf-8")
+
+    # Directory outside attributes/ that happens to have current_value
+    poc_dir = tmp_path / "poc"
+    poc_dir.mkdir()
+    poc_file = poc_dir / "current_value"
+    poc_file.write_text("UNTOUCHED", encoding="utf-8")
+    (poc_dir / "display_name").write_text("Thermal Management", encoding="utf-8")
+
+    monkeypatch.setattr(backend, "find_sysman_root", lambda: str(root))
+
+    # Path traversal must raise FileNotFoundError and not modify the file
+    with pytest.raises(FileNotFoundError, match="unknown firmware attribute"):
+        backend.set_firmware_attribute("../../poc", "HACKED")
+    assert poc_file.read_text(encoding="utf-8") == "UNTOUCHED"
+
+    # Non-existent attribute must also raise FileNotFoundError
+    with pytest.raises(FileNotFoundError, match="unknown firmware attribute"):
+        backend.set_firmware_attribute("NonExistentAttr", "val")
+
+
 def test_set_charge_thresholds_validation(monkeypatch, tmp_path):
     bat = tmp_path / "BAT0"
     bat.mkdir(parents=True)
+    (bat / "type").write_text("Battery\n", encoding="utf-8")
     (bat / "charge_control_start_threshold").write_text("50", encoding="utf-8")
     (bat / "charge_control_end_threshold").write_text("100", encoding="utf-8")
 
@@ -68,6 +99,45 @@ def test_set_charge_thresholds_validation(monkeypatch, tmp_path):
     backend.set_charge_thresholds("BAT0", 60, 85)
     assert (bat / "charge_control_start_threshold").read_text(encoding="utf-8") == "60"
     assert (bat / "charge_control_end_threshold").read_text(encoding="utf-8") == "85"
+
+
+def test_set_charge_thresholds_unknown_or_traversal(monkeypatch, tmp_path):
+    power_root = tmp_path / "power_supply"
+    power_root.mkdir()
+    bat = power_root / "BAT0"
+    bat.mkdir()
+    (bat / "type").write_text("Battery\n", encoding="utf-8")
+    (bat / "charge_control_start_threshold").write_text("50", encoding="utf-8")
+    (bat / "charge_control_end_threshold").write_text("100", encoding="utf-8")
+
+    # Target directory outside power_root mimicking a battery
+    target_dir = tmp_path / "target"
+    target_dir.mkdir()
+    target_start = target_dir / "charge_control_start_threshold"
+    target_end = target_dir / "charge_control_end_threshold"
+    target_start.write_text("ORIGINAL_START", encoding="utf-8")
+    target_end.write_text("ORIGINAL_END", encoding="utf-8")
+
+    monkeypatch.setattr(backend.sysfs, "POWER_SUPPLY_ROOT", str(power_root))
+
+    # Path traversal must raise FileNotFoundError and not modify target files
+    with pytest.raises(FileNotFoundError, match="unknown battery"):
+        backend.set_charge_thresholds("../target", 60, 80)
+    assert target_start.read_text(encoding="utf-8") == "ORIGINAL_START"
+    assert target_end.read_text(encoding="utf-8") == "ORIGINAL_END"
+
+    with pytest.raises(FileNotFoundError, match="unknown battery"):
+        backend.set_charge_thresholds("../../../etc", 60, 80)
+
+    with pytest.raises(FileNotFoundError, match="unknown battery"):
+        backend.set_charge_thresholds("BAT99", 60, 80)
+
+    # Non-battery device (e.g. AC adapter) must also be rejected
+    ac = power_root / "AC"
+    ac.mkdir()
+    (ac / "type").write_text("Mains\n", encoding="utf-8")
+    with pytest.raises(FileNotFoundError, match="unknown battery"):
+        backend.set_charge_thresholds("AC", 60, 80)
 
 
 def test_set_platform_profile_validation(monkeypatch, tmp_path):

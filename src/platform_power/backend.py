@@ -225,6 +225,8 @@ def set_firmware_attribute(attr_id: str, value: str) -> None:
     root = find_sysman_root()
     if root is None:
         raise FileNotFoundError("dell-wmi-sysman is not present on this system")
+    if attr_id not in sysfs.list_dir(f"{root}/attributes"):
+        raise FileNotFoundError(f"unknown firmware attribute: {attr_id}")
     base = f"{root}/attributes/{attr_id}"
     if not sysfs.exists(f"{base}/current_value"):
         raise FileNotFoundError(f"unknown firmware attribute: {attr_id}")
@@ -348,6 +350,9 @@ def set_battery_charge_mode(mode: str) -> None:
 
 
 def set_charge_thresholds(name: str, start: int, end: int) -> None:
+    if name not in list_batteries():
+        raise FileNotFoundError(f"unknown battery: {name}")
+
     if not (0 <= start < end <= 100):
         raise ValueError("Le seuil de début doit être inférieur au seuil de fin (entre 0 et 100 %).")
     if (end - start) < 1:

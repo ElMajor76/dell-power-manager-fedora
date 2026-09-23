@@ -1,6 +1,6 @@
 Name:           platform-power-manager
 Version:        0.2.0
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
 License:        MIT
@@ -138,6 +138,10 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-5
+- Security fix: validate battery name against list_batteries() in set_charge_thresholds() to prevent sysfs path traversal.
+- Security fix: validate attribute_id against sysfs.list_dir() in set_firmware_attribute() to prevent sysfs path traversal.
+
 * Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-4
 - Reorganize BIOS Advanced categories into logical, user-friendly groups (battery, charging, peak shift, thermal, auto on, power options, USB-C, keyboard backlight, CPU performance).
 - Localize BIOS Advanced tab to French: friendly titles, descriptive subtitles, and translated enum values.
