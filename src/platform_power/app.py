@@ -70,6 +70,7 @@ class PlatformPowerApp(Adw.Application):
         self._tray = TrayIndicator(
             on_open=self.present_window,
             on_set_profile=self._set_platform_profile,
+            on_set_charge_mode=self._set_battery_charge_mode,
         )
 
         if self._client is not None:
@@ -110,12 +111,19 @@ class PlatformPowerApp(Adw.Application):
             self._tray.update_state(state)
 
     def _set_platform_profile(self, profile: str) -> None:
+        # Async, like every other setter (see window.py's comment on why):
+        # a synchronous call here would block the GTK main loop for as long
+        # as the daemon/polkit take to answer, right from a tray click.
         if self._client is not None:
-            try:
-                self._client.set_platform_profile(profile)
-            except Exception as exc:
-                if self._window is not None:
-                    self._window._show_error(str(exc))
+            self._client.set_platform_profile_async(profile, on_error=self._on_tray_action_error)
+
+    def _set_battery_charge_mode(self, mode: str) -> None:
+        if self._client is not None:
+            self._client.set_battery_charge_mode_async(mode, on_error=self._on_tray_action_error)
+
+    def _on_tray_action_error(self, exc: Exception) -> None:
+        if self._window is not None:
+            self._window._show_error(str(exc))
 
     def quit_application(self) -> None:
         if self._tray is not None:

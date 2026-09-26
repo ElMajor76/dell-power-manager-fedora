@@ -2,10 +2,17 @@
 
 Provides a tray icon in the system status area (GNOME via AppIndicator
 extension, KDE Plasma, XFCE, Sway/Waybar) allowing the user to:
-- See the current power profile and battery charge at a glance (tooltip)
+- See the current power profile and battery charge at a glance (menu label
+  and tooltip, no need to open the window)
 - Directly switch thermal/power profiles from the tray menu
+- Directly switch battery charge mode from the tray menu (Adaptive/
+  Standard/ExpressCharge/PrimAcUse/Custom), when the firmware exposes it
 - Open the main Platform Power window on click or menu selection
 - Cycle profiles with the mouse scroll wheel over the icon
+
+No "Quit" entry is offered here by design: like the window's close button
+(which only hides it), this is meant to behave as a persistent system
+service. See tests/test_tray.py for the regression test guarding this.
 """
 
 from __future__ import annotations
@@ -142,12 +149,28 @@ _PROFILE_LABELS: dict[str, str] = {
     "performance": "Performances",
 }
 
+# Short labels only, kept in sync with the longer (label, description) pairs
+# in pages/battery.py's _CHARGE_MODE_INFO -- same duplication trade-off as
+# _PROFILE_LABELS above vs. pages/thermal.py, so the tray stays a
+# self-contained D-Bus service with no GTK page imports.
+_CHARGE_MODE_LABELS: dict[str, str] = {
+    "Adaptive": "Adaptatif",
+    "Standard": "Standard",
+    "Express": "ExpressCharge",
+    "PrimAcUse": "Principalement sur secteur",
+    "Custom": "Personnalisé",
+}
+
 ID_APP_TITLE = 1
 ID_SEP_1 = 2
-ID_PROFILE_HEADER = 3
+ID_BATTERY_INFO = 3
+ID_PROFILE_HEADER = 4
 ID_PROFILE_BASE = 10
 ID_SEP_2 = 50
-ID_OPEN_APP = 51
+ID_CHARGE_MODE_HEADER = 51
+ID_CHARGE_MODE_BASE = 60
+ID_SEP_3 = 100
+ID_OPEN_APP = 101
 
 SNI_PATH = "/io/github/nplacide95/PlatformPower/StatusNotifierItem"
 MENU_PATH = "/io/github/nplacide95/PlatformPower/StatusNotifierItem/Menu"
@@ -160,10 +183,12 @@ class TrayIndicator:
         self,
         on_open: Callable[[], None],
         on_set_profile: Callable[[str], None],
+        on_set_charge_mode: Callable[[str], None] | None = None,
         on_quit: Callable[[], None] | None = None,
     ) -> None:
         self._on_open = on_open
         self._on_set_profile = on_set_profile
+        self._on_set_charge_mode = on_set_charge_mode
         self._on_quit = on_quit
 
         self._bus: Gio.DBusConnection | None = None
@@ -175,6 +200,8 @@ class TrayIndicator:
         self._choices: list[str] = ["cool", "quiet", "balanced", "performance"]
         self._profile_supported: bool = True
         self._battery_summary: str = ""
+        self._charge_mode: str | None = None
+        self._charge_mode_choices: list[str] = []
         self._revision: int = 1
         self._is_available: bool = False
         self._cached_icon_pixmap: GLib.Variant | None = None
@@ -282,6 +309,15 @@ class TrayIndicator:
                 if new_summary != self._battery_summary:
                     self._battery_summary = new_summary
                     changed = True
+
+            mode = b0.get("charge_mode")
+            mode_choices = b0.get("charge_mode_choices", [])
+            if mode != self._charge_mode:
+                self._charge_mode = mode
+                changed = True
+            if mode_choices != self._charge_mode_choices:
+                self._charge_mode_choices = mode_choices
+                changed = True
 
         if changed and self._bus is not None:
             self._revision += 1
@@ -474,7 +510,15 @@ class TrayIndicator:
         # 2: Separator
         items[ID_SEP_1] = {"type": GLib.Variant("s", "separator")}
 
-        # 3: Profiles header
+        # 3: Battery status, at-a-glance (no need to open the window or wait
+        # for the tooltip to hover-trigger)
+        if self._battery_summary:
+            items[ID_BATTERY_INFO] = {
+                "label": GLib.Variant("s", f"Batterie : {self._battery_summary}"),
+                "enabled": GLib.Variant("b", False),
+            }
+
+        # 4: Profiles header
         items[ID_PROFILE_HEADER] = {
             "label": GLib.Variant("s", "Profil thermique :"),
             "enabled": GLib.Variant("b", False),
@@ -500,11 +544,39 @@ class TrayIndicator:
         # 50: Separator
         items[ID_SEP_2] = {"type": GLib.Variant("s", "separator")}
 
-        # 51: Open window
+        # 51/60..: Charge mode, mirroring the profile section above. Only
+        # shown when the firmware actually exposes PrimaryBattChargeCfg
+        # (e.g. no dell-wmi-sysman, or a model that doesn't have it) --
+        # same "hide rather than show a dead/greyed-out control" choice as
+        # the profile section makes via _profile_supported.
+        if self._charge_mode_choices:
+            items[ID_CHARGE_MODE_HEADER] = {
+                "label": GLib.Variant("s", "Mode de charge :"),
+                "enabled": GLib.Variant("b", False),
+            }
+            for idx, choice in enumerate(self._charge_mode_choices):
+                item_id = ID_CHARGE_MODE_BASE + idx
+                is_selected = choice == self._charge_mode
+                label = _CHARGE_MODE_LABELS.get(choice, choice)
+                items[item_id] = {
+                    "label": GLib.Variant("s", label),
+                    "toggle-type": GLib.Variant("s", "checkmark"),
+                    "toggle-state": GLib.Variant("i", 1 if is_selected else 0),
+                }
+            items[ID_SEP_3] = {"type": GLib.Variant("s", "separator")}
+
+        # 101: Open window
         items[ID_OPEN_APP] = {
             "label": GLib.Variant("s", "Ouvrir Dell Power Manager"),
             "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
         }
+
+        # No "Quit" item here on purpose: this is a persistent system
+        # service (see tests/test_tray.py::test_tray_dbusmenu_properties,
+        # which asserts it stays absent), the same way the window's close
+        # button only hides it rather than exiting. on_quit is still wired
+        # through for callers that manage their own lifecycle (e.g. tests,
+        # or a future settings-triggered shutdown), just not exposed here.
 
         return items
 
@@ -578,6 +650,10 @@ class TrayIndicator:
             choice = self._choices[item_id - ID_PROFILE_BASE]
             if choice != self._active_profile:
                 GLib.idle_add(self._on_set_profile, choice)
+        elif ID_CHARGE_MODE_BASE <= item_id < ID_CHARGE_MODE_BASE + len(self._charge_mode_choices):
+            choice = self._charge_mode_choices[item_id - ID_CHARGE_MODE_BASE]
+            if choice != self._charge_mode and self._on_set_charge_mode is not None:
+                GLib.idle_add(self._on_set_charge_mode, choice)
         elif item_id == ID_OPEN_APP:
             GLib.idle_add(self._on_open)
 

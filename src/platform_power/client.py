@@ -10,13 +10,26 @@ in pages/) simple and linear instead of callback-shaped.
 from __future__ import annotations
 
 import json
+import logging
 from collections.abc import Callable
+from typing import Any
 
 from gi.repository import Gio, GLib
 
-from .daemon import BUS_NAME, OBJECT_PATH
+from .daemon import BUS_NAME, IFACE, OBJECT_PATH
 
-_IFACE = "io.github.nplacide95.PlatformPower.Daemon1"
+log = logging.getLogger("platform-power-client")
+
+# Explicit call timeout rather than the implicit "-1 = proxy/GDBus default"
+# used before. Deliberately generous: SetFirmwareAttribute (and, less
+# critically, the other setters) trigger a polkit check with
+# auth_admin_keep, which shows an interactive password prompt on the
+# *daemon* side before the D-Bus call returns to us -- a slow human typing
+# a password is not distinguishable from a hung daemon from here, so this
+# has to comfortably outlast a real authentication prompt. It only exists
+# to turn a truly wedged daemon into a bounded, reported failure instead of
+# an indefinite wait, not to make interactive auth feel snappier.
+_CALL_TIMEOUT_MS = 60_000
 
 
 class DaemonUnavailable(Exception):
@@ -32,7 +45,7 @@ class DaemonClient:
                 None,
                 BUS_NAME,
                 OBJECT_PATH,
-                _IFACE,
+                IFACE,
                 None,
             )
         except GLib.Error as exc:  # pragma: no cover - environment dependent
@@ -47,10 +60,24 @@ class DaemonClient:
         # call succeeding (see window.py's _connect_daemon).
 
         self._on_state_changed: Callable[[dict], None] | None = None
-        self._proxy.connect("g-signal", self._on_g_signal)
+        self._signal_handler_id = self._proxy.connect("g-signal", self._on_g_signal)
 
     def watch_state_changed(self, callback: Callable[[dict], None]) -> None:
         self._on_state_changed = callback
+
+    def close(self) -> None:
+        """Disconnect from the daemon's StateChanged signal.
+
+        Not required for a clean process exit (the whole process is gone a
+        moment later anyway), but makes the client's lifetime explicit and
+        avoids keeping the proxy/window alive via the signal connection's
+        callback reference for longer than necessary if a caller keeps the
+        app process running (e.g. tests, or a future embedding scenario).
+        """
+        if self._signal_handler_id is not None:
+            self._proxy.disconnect(self._signal_handler_id)
+            self._signal_handler_id = None
+        self._on_state_changed = None
 
     def _on_g_signal(self, proxy, sender_name, signal_name, parameters) -> None:
         if signal_name == "StateChanged" and self._on_state_changed is not None:
@@ -63,7 +90,7 @@ class DaemonClient:
                 method,
                 GLib.Variant(f"({arg_types})", args) if arg_types else None,
                 Gio.DBusCallFlags.NONE,
-                -1,
+                _CALL_TIMEOUT_MS,
                 None,
             )
         except GLib.Error as exc:
@@ -76,7 +103,7 @@ class DaemonClient:
         arg_types: str,
         args: tuple,
         reply_types: str = "",
-        on_done: Callable[[any], None] | None = None,
+        on_done: Callable[[Any], None] | None = None,
         on_error: Callable[[Exception], None] | None = None,
     ) -> None:
         def _callback(proxy, result):
@@ -86,14 +113,20 @@ class DaemonClient:
                 if on_done:
                     on_done(val)
             except GLib.Error as exc:
+                friendly = RuntimeError(_friendly_dbus_error(exc))
                 if on_error:
-                    on_error(RuntimeError(_friendly_dbus_error(exc)))
+                    on_error(friendly)
+                else:
+                    # Nothing downstream is listening for this failure: log it
+                    # instead of dropping it silently, so a caller that forgot
+                    # to pass on_error still leaves a trace of what happened.
+                    log.warning("async call %r failed with no on_error handler: %s", method, friendly)
 
         self._proxy.call(
             method,
             GLib.Variant(f"({arg_types})", args) if arg_types else None,
             Gio.DBusCallFlags.NONE,
-            -1,
+            _CALL_TIMEOUT_MS,
             None,
             _callback,
         )

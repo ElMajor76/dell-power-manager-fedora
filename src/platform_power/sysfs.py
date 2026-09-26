@@ -6,6 +6,18 @@ re-enumeration after suspend, etc.), and writes can be rejected by the
 kernel for reasons that have nothing to do with permissions (invalid
 value, attribute locked by a BIOS admin password, ...). Callers should
 always be prepared to catch OSError.
+
+SECURITY: this module performs NO path validation and NO whitelisting.
+write_str() will happily write any value to any path it is given,
+including outside FIRMWARE_ATTR_ROOT/POWER_SUPPLY_ROOT/PLATFORM_PROFILE_*.
+This is a deliberately dumb, shared low-level I/O primitive -- every
+caller (see backend.py) is responsible for validating that a path/value
+pair is safe *before* calling write_str(). If you add a new D-Bus method
+or backend function that ends up calling write_str() with any part of
+the path or value derived from an untrusted caller, you MUST whitelist
+it the same way backend.set_firmware_attribute() does (discovery check +
+existence check + semantic allow-list), or you will have created a
+root-level arbitrary file write.
 """
 
 from __future__ import annotations

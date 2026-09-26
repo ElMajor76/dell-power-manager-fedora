@@ -22,6 +22,10 @@ from .polkit import PolkitDenied, check_authorization
 
 BUS_NAME = "io.github.nplacide95.PlatformPower.Daemon1"
 OBJECT_PATH = "/io/github/nplacide95/PlatformPower/Daemon1"
+# The D-Bus interface happens to share its name with BUS_NAME. Exported
+# separately (rather than each caller hardcoding the string) so client.py
+# and any future consumer have a single source of truth.
+IFACE = BUS_NAME
 
 _ACTION_PREFIX = "io.github.nplacide95.platform-power"
 

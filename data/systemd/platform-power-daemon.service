@@ -25,3 +25,25 @@ RestartSec=2
 ProtectHome=true
 ProtectSystem=strict
 NoNewPrivileges=true
+
+# Additional sandboxing. None of these touch the sysfs write path above
+# (they only remove attack surface unrelated to writing sysfs attribute
+# files), so they carry no functional risk:
+PrivateTmp=true
+RestrictAddressFamilies=AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+MemoryDenyWriteExecute=true
+SystemCallFilter=@system-service
+SystemCallErrorNumber=EPERM
+
+# CapabilityBoundSet is intentionally NOT restricted here. The sysfs nodes
+# this daemon writes to are root:root with the owner-write bit already set,
+# so plain root ownership covers every path observed so far without needing
+# CAP_DAC_OVERRIDE. However, some platform/x86 drivers additionally gate
+# certain firmware-attribute writes behind CAP_SYS_ADMIN in kernel code we
+# have not audited across every Dell model/kernel version this targets.
+# Dropping it here without broad hardware testing risks silently breaking
+# SetFirmwareAttribute on some machines. Tighten this once verified on a
+# representative set of supported models, e.g.:
+#   CapabilityBoundSet=CAP_DAC_OVERRIDE CAP_SYS_ADMIN

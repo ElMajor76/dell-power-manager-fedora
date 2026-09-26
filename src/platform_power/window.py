@@ -41,6 +41,8 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
 
     def _on_close_request(self, window: Gtk.Window) -> bool:
         if self._quitting:
+            if self._client is not None:
+                self._client.close()
             return False
         self.set_visible(False)
         return True
@@ -184,6 +186,6 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
     def _on_action_success(self) -> None:
         GLib.idle_add(self._refresh)
 
-    def _on_action_error(self, exc: Exception) -> None:
+    def _on_action_error(self, exc: RuntimeError) -> None:
         self._show_error(str(exc))
         GLib.idle_add(self._refresh)
