@@ -499,77 +499,109 @@ class TrayIndicator:
             return GLib.Variant("as", [])
         return None
 
-    def _get_items(self) -> dict[int, dict[str, GLib.Variant]]:
+    def _get_tree(self) -> tuple[dict[int, dict[str, GLib.Variant]], dict[int, list[int]]]:
+        """Build the full set of item properties plus the parent -> ordered
+        children-ids mapping that turns thermal profile and charge mode
+        each into a proper DBusMenu flyout submenu, instead of a flat list
+        of radio-style entries inline in the root menu."""
         items: dict[int, dict[str, GLib.Variant]] = {}
+        children: dict[int, list[int]] = {0: []}
+
+        def add(item_id: int, props: dict[str, GLib.Variant], parent: int = 0) -> None:
+            items[item_id] = props
+            children.setdefault(parent, []).append(item_id)
+            children.setdefault(item_id, [])
 
         # 1: Title
-        items[ID_APP_TITLE] = {
-            "label": GLib.Variant("s", "Dell Power Manager"),
-            "enabled": GLib.Variant("b", False),
-        }
+        add(
+            ID_APP_TITLE,
+            {"label": GLib.Variant("s", "Dell Power Manager"), "enabled": GLib.Variant("b", False)},
+        )
         # 2: Separator
-        items[ID_SEP_1] = {"type": GLib.Variant("s", "separator")}
+        add(ID_SEP_1, {"type": GLib.Variant("s", "separator")})
 
         # 3: Battery status, at-a-glance (no need to open the window or wait
         # for the tooltip to hover-trigger)
         if self._battery_summary:
-            items[ID_BATTERY_INFO] = {
-                "label": GLib.Variant("s", f"Batterie : {self._battery_summary}"),
-                "enabled": GLib.Variant("b", False),
-            }
+            add(
+                ID_BATTERY_INFO,
+                {
+                    "label": GLib.Variant("s", f"Batterie : {self._battery_summary}"),
+                    "enabled": GLib.Variant("b", False),
+                },
+            )
 
-        # 4: Profiles header
-        items[ID_PROFILE_HEADER] = {
-            "label": GLib.Variant("s", "Profil thermique :"),
-            "enabled": GLib.Variant("b", False),
-        }
-
-        # 10..: Profile choices
+        # 4: "Profil thermique" submenu. When the platform doesn't support
+        # profile switching at all, show a single disabled explanatory
+        # entry instead of an (empty or dead) submenu.
         if self._profile_supported and self._choices:
+            add(
+                ID_PROFILE_HEADER,
+                {
+                    "label": GLib.Variant("s", "Profil thermique"),
+                    "children-display": GLib.Variant("s", "submenu"),
+                },
+            )
             for idx, choice in enumerate(self._choices):
                 item_id = ID_PROFILE_BASE + idx
                 is_selected = choice == self._active_profile
                 label = _PROFILE_LABELS.get(choice, choice.capitalize())
-                items[item_id] = {
-                    "label": GLib.Variant("s", label),
-                    "toggle-type": GLib.Variant("s", "checkmark"),
-                    "toggle-state": GLib.Variant("i", 1 if is_selected else 0),
-                }
+                add(
+                    item_id,
+                    {
+                        "label": GLib.Variant("s", label),
+                        "toggle-type": GLib.Variant("s", "checkmark"),
+                        "toggle-state": GLib.Variant("i", 1 if is_selected else 0),
+                    },
+                    parent=ID_PROFILE_HEADER,
+                )
         else:
-            items[ID_PROFILE_BASE] = {
-                "label": GLib.Variant("s", "Non supporté par le matériel"),
-                "enabled": GLib.Variant("b", False),
-            }
+            add(
+                ID_PROFILE_HEADER,
+                {
+                    "label": GLib.Variant("s", "Profil thermique : non supporté par le matériel"),
+                    "enabled": GLib.Variant("b", False),
+                },
+            )
 
-        # 50: Separator
-        items[ID_SEP_2] = {"type": GLib.Variant("s", "separator")}
-
-        # 51/60..: Charge mode, mirroring the profile section above. Only
-        # shown when the firmware actually exposes PrimaryBattChargeCfg
-        # (e.g. no dell-wmi-sysman, or a model that doesn't have it) --
-        # same "hide rather than show a dead/greyed-out control" choice as
-        # the profile section makes via _profile_supported.
+        # 51/60..: "Mode de charge" submenu, mirroring the profile one
+        # above. Only shown when the firmware actually exposes
+        # PrimaryBattChargeCfg (e.g. no dell-wmi-sysman, or a model that
+        # doesn't have it) -- same "hide rather than show a dead/greyed-out
+        # control" choice the profile section makes via _profile_supported.
         if self._charge_mode_choices:
-            items[ID_CHARGE_MODE_HEADER] = {
-                "label": GLib.Variant("s", "Mode de charge :"),
-                "enabled": GLib.Variant("b", False),
-            }
+            add(
+                ID_CHARGE_MODE_HEADER,
+                {
+                    "label": GLib.Variant("s", "Mode de charge"),
+                    "children-display": GLib.Variant("s", "submenu"),
+                },
+            )
             for idx, choice in enumerate(self._charge_mode_choices):
                 item_id = ID_CHARGE_MODE_BASE + idx
                 is_selected = choice == self._charge_mode
                 label = _CHARGE_MODE_LABELS.get(choice, choice)
-                items[item_id] = {
-                    "label": GLib.Variant("s", label),
-                    "toggle-type": GLib.Variant("s", "checkmark"),
-                    "toggle-state": GLib.Variant("i", 1 if is_selected else 0),
-                }
-            items[ID_SEP_3] = {"type": GLib.Variant("s", "separator")}
+                add(
+                    item_id,
+                    {
+                        "label": GLib.Variant("s", label),
+                        "toggle-type": GLib.Variant("s", "checkmark"),
+                        "toggle-state": GLib.Variant("i", 1 if is_selected else 0),
+                    },
+                    parent=ID_CHARGE_MODE_HEADER,
+                )
+
+        # 100: Separator between the submenus and "Open"
+        add(ID_SEP_3, {"type": GLib.Variant("s", "separator")})
 
         # 101: Open window
-        items[ID_OPEN_APP] = {
-            "label": GLib.Variant("s", "Ouvrir Dell Power Manager"),
-            "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
-        }
+        add(
+            ID_OPEN_APP,
+            {
+                "label": GLib.Variant("s", "Ouvrir Dell Power Manager"),
+                "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
+            },
+        )
 
         # No "Quit" item here on purpose: this is a persistent system
         # service (see tests/test_tray.py::test_tray_dbusmenu_properties,
@@ -578,27 +610,44 @@ class TrayIndicator:
         # through for callers that manage their own lifecycle (e.g. tests,
         # or a future settings-triggered shutdown), just not exposed here.
 
+        return items, children
+
+    def _get_items(self) -> dict[int, dict[str, GLib.Variant]]:
+        items, _children = self._get_tree()
         return items
 
-    def _build_layout(self) -> tuple[int, dict[str, GLib.Variant], list]:
-        items = self._get_items()
-        children = []
-        for item_id in sorted(items.keys()):
-            children.append(
+    def _build_layout(
+        self, parent_id: int = 0, recursion_depth: int = -1
+    ) -> tuple[int, dict[str, GLib.Variant], list]:
+        """Build the (id, properties, children) triple GetLayout expects,
+        for `parent_id` down to `recursion_depth` levels (-1 = unlimited,
+        matching what every host that doesn't lazily fetch submenus asks
+        for). Each entry in `children` is itself a fully-formed
+        GLib.Variant of type "(ia{sv}av)", as required for the outer "av"
+        (array of variant) slot -- unlike a plain nested Python tuple,
+        which is only valid for the single top-level triple GetLayout
+        returns, not for entries *inside* an array of variants.
+        """
+        items, children = self._get_tree()
+
+        def build_children(node_id: int, depth: int) -> list[GLib.Variant]:
+            if depth == 0:
+                return []
+            next_depth = depth if depth < 0 else depth - 1
+            return [
                 GLib.Variant(
                     "(ia{sv}av)",
-                    (
-                        item_id,
-                        items[item_id],
-                        [],
-                    ),
+                    (child_id, items.get(child_id, {}), build_children(child_id, next_depth)),
                 )
-            )
-        return (
-            0,
-            {"children-display": GLib.Variant("s", "submenu")},
-            children,
+                for child_id in children.get(node_id, [])
+            ]
+
+        props = (
+            items.get(parent_id, {})
+            if parent_id != 0
+            else {"children-display": GLib.Variant("s", "submenu")}
         )
+        return (parent_id, props, build_children(parent_id, recursion_depth))
 
     def _handle_menu_method(
         self,
@@ -612,7 +661,7 @@ class TrayIndicator:
     ) -> None:
         if method == "GetLayout":
             parent_id, depth, prop_names = params.unpack() if params else (0, -1, [])
-            layout = self._build_layout()
+            layout = self._build_layout(parent_id, depth)
             invocation.return_value(GLib.Variant("(u(ia{sv}av))", (self._revision, layout)))
         elif method == "GetGroupProperties":
             ids, prop_names = params.unpack() if params else ([], [])
