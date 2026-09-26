@@ -131,3 +131,72 @@ def test_tray_profile_and_charge_mode_are_flyout_submenus(tray):
     sub_id, sub_props, sub_children = tray._build_layout(parent_id=ID_PROFILE_HEADER, recursion_depth=-1)
     assert sub_id == ID_PROFILE_HEADER
     assert [c.unpack()[0] for c in sub_children] == [ID_PROFILE_BASE + i for i in range(4)]
+
+
+class _FakeBus:
+    """Stands in for tray._bus to capture emitted signals without needing
+    a real round-trip through the session bus. Only implements what
+    TrayIndicator actually calls on it (emit_signal for the test itself,
+    signal_unsubscribe/unregister_object so the fixture's teardown -- which
+    runs destroy() on whatever bus is installed at that point -- doesn't
+    blow up)."""
+
+    def __init__(self):
+        self.calls: list[tuple] = []
+
+    def emit_signal(self, *args):
+        self.calls.append(args)
+
+    def signal_unsubscribe(self, *args):
+        pass
+
+    def unregister_object(self, *args):
+        pass
+
+
+def test_tray_checkmark_updates_via_items_properties_updated(tray):
+    # Establish an initial profile with the real bus first (as it would be
+    # at startup), then switch to the fake one to observe exactly what the
+    # next state change emits.
+    tray.update_state(
+        {
+            "platform_profile": {
+                "supported": True,
+                "current": "balanced",
+                "choices": ["cool", "quiet", "balanced", "performance"],
+            }
+        }
+    )
+    fake_bus = _FakeBus()
+    tray._bus = fake_bus
+
+    tray.update_state(
+        {
+            "platform_profile": {
+                "supported": True,
+                "current": "performance",
+                "choices": ["cool", "quiet", "balanced", "performance"],
+            }
+        }
+    )
+
+    # This is the actual regression: switching profile must flip the
+    # checkmark via ItemsPropertiesUpdated, not rely on LayoutUpdated alone
+    # -- most DBusMenu hosts only live-refresh a toggle-state on an
+    # already-open submenu through the former.
+    items_updates = [c for c in fake_bus.calls if c[3] == "ItemsPropertiesUpdated"]
+    assert len(items_updates) == 1
+    updated, removed = items_updates[0][4].unpack()
+    updated_by_id = dict(updated)
+
+    assert updated_by_id[ID_PROFILE_BASE + 2] == {"toggle-state": 0}  # balanced, now off
+    assert updated_by_id[ID_PROFILE_BASE + 3] == {"toggle-state": 1}  # performance, now on
+    assert removed == []
+
+    # And the built layout itself agrees (belt and suspenders: a host that
+    # does a full refetch on next open must also see the right state).
+    _, profile_props, profile_children = next(
+        c.unpack() for c in tray._build_layout()[2] if c.unpack()[0] == ID_PROFILE_HEADER
+    )
+    performance_child = next(c for c in profile_children if c[0] == ID_PROFILE_BASE + 3)
+    assert performance_child[1]["toggle-state"] == 1

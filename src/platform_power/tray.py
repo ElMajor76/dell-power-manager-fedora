@@ -281,17 +281,39 @@ class TrayIndicator:
 
     def update_state(self, state: dict) -> None:
         changed = False
+        # (item_id, toggle-state) pairs for entries whose checkmark flips.
+        # This is reported via ItemsPropertiesUpdated, which is what
+        # DBusMenu hosts (the GNOME Shell AppIndicator extension, KDE
+        # Plasma, XFCE) actually watch to live-refresh a toggle-state on an
+        # *already open* submenu. LayoutUpdated alone (emitted below
+        # regardless, for hosts that only refetch on next open/close) is
+        # about structural changes and is not reliably enough to flip an
+        # existing checkmark while the submenu is currently visible -- this
+        # is exactly why the checkmark used to appear stuck after switching
+        # profile/charge mode from an already-open tray menu.
+        toggle_updates: list[tuple[int, dict[str, GLib.Variant]]] = []
 
         prof = state.get("platform_profile", {})
         supported = prof.get("supported", True)
         current = prof.get("current")
         choices = prof.get("choices", [])
+        effective_choices = choices or self._choices
 
         if supported != self._profile_supported:
             self._profile_supported = supported
             changed = True
         if current and current != self._active_profile:
+            if self._active_profile in effective_choices:
+                old_idx = effective_choices.index(self._active_profile)
+                toggle_updates.append(
+                    (ID_PROFILE_BASE + old_idx, {"toggle-state": GLib.Variant("i", 0)})
+                )
             self._active_profile = current
+            if current in effective_choices:
+                new_idx = effective_choices.index(current)
+                toggle_updates.append(
+                    (ID_PROFILE_BASE + new_idx, {"toggle-state": GLib.Variant("i", 1)})
+                )
             changed = True
         if choices and choices != self._choices:
             self._choices = choices
@@ -312,8 +334,19 @@ class TrayIndicator:
 
             mode = b0.get("charge_mode")
             mode_choices = b0.get("charge_mode_choices", [])
+            effective_mode_choices = mode_choices or self._charge_mode_choices
             if mode != self._charge_mode:
+                if self._charge_mode in effective_mode_choices:
+                    old_idx = effective_mode_choices.index(self._charge_mode)
+                    toggle_updates.append(
+                        (ID_CHARGE_MODE_BASE + old_idx, {"toggle-state": GLib.Variant("i", 0)})
+                    )
                 self._charge_mode = mode
+                if mode in effective_mode_choices:
+                    new_idx = effective_mode_choices.index(mode)
+                    toggle_updates.append(
+                        (ID_CHARGE_MODE_BASE + new_idx, {"toggle-state": GLib.Variant("i", 1)})
+                    )
                 changed = True
             if mode_choices != self._charge_mode_choices:
                 self._charge_mode_choices = mode_choices
@@ -321,7 +354,19 @@ class TrayIndicator:
 
         if changed and self._bus is not None:
             self._revision += 1
-            # Notify DBusMenu that layout has updated
+
+            if toggle_updates:
+                self._bus.emit_signal(
+                    None,
+                    MENU_PATH,
+                    "com.canonical.dbusmenu",
+                    "ItemsPropertiesUpdated",
+                    GLib.Variant("(a(ia{sv})a(ias))", (toggle_updates, [])),
+                )
+
+            # Notify DBusMenu that layout has updated too, for hosts that
+            # only rely on this (e.g. to refresh on next open rather than
+            # live).
             self._bus.emit_signal(
                 None,
                 MENU_PATH,
