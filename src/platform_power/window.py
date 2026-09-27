@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import subprocess
+
 import gi
 
 gi.require_version("Adw", "1")
@@ -10,6 +12,12 @@ from .client import DaemonClient, DaemonUnavailable
 from .pages.battery import BatteryPage
 from .pages.firmware import FirmwarePage
 from .pages.thermal import ThermalPage, get_thermal_icon
+
+# Keep in sync with app.APP_VERSION (duplicated rather than imported: app.py
+# imports this module, so importing back from app would be circular).
+_VERSION = "0.2.0"
+
+_DAEMON_UNIT = "platform-power-daemon.service"
 
 
 class PlatformPowerWindow(Adw.ApplicationWindow):
@@ -27,6 +35,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self.connect("close-request", self._on_close_request)
 
         self._client: DaemonClient | None = client
+        self._last_state: dict | None = None
         self._build_ui()
         if self._client is not None:
             try:
@@ -61,7 +70,22 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         header.set_title_widget(self._switcher)
 
         primary_menu = Gio.Menu()
-        primary_menu.append("À propos de Dell Power Manager", "app.about")
+
+        state_section = Gio.Menu()
+        state_section.append("Rafraîchir l'état", "app.refresh")
+        state_section.append("Diagnostics", "app.diagnostics")
+        primary_menu.append_section(None, state_section)
+
+        help_section = Gio.Menu()
+        help_section.append("Raccourcis clavier", "app.shortcuts")
+        help_section.append("Documentation", "app.docs")
+        help_section.append("Signaler un problème", "app.report-issue")
+        primary_menu.append_section(None, help_section)
+
+        about_section = Gio.Menu()
+        about_section.append("À propos de Dell Power Manager", "app.about")
+        primary_menu.append_section(None, about_section)
+
         menu_button = Gtk.MenuButton(
             icon_name="open-menu-symbolic",
             menu_model=primary_menu,
@@ -139,6 +163,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._apply_state(state)
 
     def _apply_state(self, state: dict) -> None:
+        self._last_state = state
         self._thermal_page.update_state(state.get("platform_profile", {}))
         self._battery_page.update_state(state.get("batteries", []))
         self._firmware_page.update_state(
@@ -199,3 +224,107 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
     def _on_action_error(self, exc: RuntimeError) -> None:
         self._show_error(str(exc))
         GLib.idle_add(self._refresh)
+
+    # -- Menu actions (Rafraîchir / Diagnostics / Raccourcis / liens) -------
+
+    def refresh_from_menu(self) -> None:
+        """Like _refresh(), but for the explicit "Rafraîchir l'état" menu
+        item: give visible feedback either way, since a manual refresh that
+        appears to do nothing (when nothing actually changed) reads as
+        broken rather than as "already up to date"."""
+        if self._client is None:
+            self._show_error("Aucune connexion au service pour l'instant.")
+            return
+        try:
+            state = self._client.get_state()
+        except RuntimeError as exc:
+            self._show_error(str(exc))
+            return
+        self._apply_state(state)
+        toast = Adw.Toast(title="État actualisé", timeout=2)
+        self._toast_overlay.add_toast(toast)
+
+    def show_diagnostics(self) -> None:
+        try:
+            result = subprocess.run(
+                ["systemctl", "is-active", _DAEMON_UNIT],
+                capture_output=True,
+                text=True,
+                timeout=2,
+            )
+            daemon_status = result.stdout.strip() or "inconnu"
+        except Exception:
+            daemon_status = "inconnu"
+
+        state = self._last_state or {}
+        sysman_present = state.get("sysman_present", False)
+        firmware_count = len(state.get("firmware_attributes", []))
+        firmware_locked = state.get("firmware_attributes_locked", False)
+
+        dialog = Adw.Dialog(title="Diagnostics", content_width=440)
+        page = Adw.PreferencesPage()
+        group = Adw.PreferencesGroup()
+        page.add(group)
+        dialog.set_child(page)
+
+        def row(title: str, subtitle: str) -> None:
+            group.add(Adw.ActionRow(title=title, subtitle=subtitle))
+
+        row("Version installée", _VERSION)
+        row(
+            "Service platform-power-daemon",
+            "Actif" if daemon_status == "active" else f"Inactif ({daemon_status})",
+        )
+        row("Connexion D-Bus", "Établie" if self._client is not None else "Indisponible")
+        row(
+            "BIOS dell-wmi-sysman détecté",
+            "Oui" if sysman_present else "Non (fonctions BIOS avancées indisponibles)",
+        )
+        if sysman_present:
+            row("Attributs BIOS exposés", str(firmware_count))
+            row(
+                "Réglages BIOS verrouillés",
+                "Oui (mot de passe administrateur BIOS actif)" if firmware_locked else "Non",
+            )
+
+        dialog.present(self)
+
+    def show_shortcuts(self) -> None:
+        builder = Gtk.Builder()
+        builder.add_from_string(
+            """
+            <interface>
+              <object class="GtkShortcutsWindow" id="shortcuts">
+                <property name="modal">1</property>
+                <child>
+                  <object class="GtkShortcutsSection">
+                    <property name="visible">1</property>
+                    <child>
+                      <object class="GtkShortcutsGroup">
+                        <property name="title" translatable="no">Général</property>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="title" translatable="no">Masquer la fenêtre (l'application continue en arrière-plan)</property>
+                            <property name="accelerator">&lt;primary&gt;q &lt;primary&gt;w</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkShortcutsShortcut">
+                            <property name="title" translatable="no">Afficher les raccourcis clavier</property>
+                            <property name="accelerator">&lt;primary&gt;question</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </interface>
+            """
+        )
+        shortcuts = builder.get_object("shortcuts")
+        shortcuts.set_transient_for(self)
+        shortcuts.present()
+
+    def open_uri(self, uri: str) -> None:
+        Gtk.UriLauncher(uri=uri).launch(self, None, None)

@@ -93,6 +93,43 @@ class PlatformPowerApp(Adw.Application):
         about_action.connect("activate", lambda *_: self._show_about())
         self.add_action(about_action)
 
+        refresh_action = Gio.SimpleAction.new("refresh", None)
+        refresh_action.connect(
+            "activate", lambda *_: self._window and self._window.refresh_from_menu()
+        )
+        self.add_action(refresh_action)
+
+        diagnostics_action = Gio.SimpleAction.new("diagnostics", None)
+        diagnostics_action.connect(
+            "activate", lambda *_: self._window and self._window.show_diagnostics()
+        )
+        self.add_action(diagnostics_action)
+
+        shortcuts_action = Gio.SimpleAction.new("shortcuts", None)
+        shortcuts_action.connect(
+            "activate", lambda *_: self._window and self._window.show_shortcuts()
+        )
+        self.add_action(shortcuts_action)
+        self.set_accels_for_action("app.shortcuts", ["<primary>question"])
+
+        docs_action = Gio.SimpleAction.new("docs", None)
+        docs_action.connect(
+            "activate",
+            lambda *_: self._window
+            and self._window.open_uri("https://github.com/nplacide95/dell-power-manager-fedora"),
+        )
+        self.add_action(docs_action)
+
+        report_issue_action = Gio.SimpleAction.new("report-issue", None)
+        report_issue_action.connect(
+            "activate",
+            lambda *_: self._window
+            and self._window.open_uri(
+                "https://github.com/nplacide95/dell-power-manager-fedora/issues"
+            ),
+        )
+        self.add_action(report_issue_action)
+
     def _on_close_shortcut(self) -> None:
         if self._window is not None:
             self._window.set_visible(False)
