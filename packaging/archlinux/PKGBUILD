@@ -10,7 +10,7 @@ depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'libgudev' 'dbus
 makedepends=('desktop-file-utils' 'appstream-glib' 'python-pytest' 'gettext')
 backup=('etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/ElMajor76/dell-power-manager-fedora/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('1946512762f70c09625e76a05d58fbad7095c2fc5ae63c3f5375773188f0e2b8')
+sha256sums=('c9259e829df41a51b30945dead51e12b613df66cdbc90c131c6dd9577dd254d4')
 
 _srcdir="dell-power-manager-fedora-$pkgver"
 
