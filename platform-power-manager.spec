@@ -1,6 +1,6 @@
 Name:           platform-power-manager
-Version:        0.2.0
-Release:        5%{?dist}
+Version:        0.3.0
+Release:        1%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
 License:        MIT
@@ -138,6 +138,33 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Sun Sep 27 2026 Platform Power packaging <noreply@example.invalid> - 0.3.0-1
+- Security: harden the systemd unit (PrivateTmp, RestrictAddressFamilies=AF_UNIX,
+  RestrictNamespaces, LockPersonality, MemoryDenyWriteExecute, SystemCallFilter).
+- Security: document sysfs.py's no-validation-by-design trust boundary so a future
+  D-Bus method doesn't skip whitelisting the way backend.py's setters do.
+- Fix: set_charge_thresholds() now validates against the firmware's own min/max
+  (CustomChargeStart/CustomChargeStop) before writing anything. It previously only
+  checked the generic 0-100 kernel range, so an out-of-firmware-range request
+  silently reverted with no error reported anywhere. The Custom threshold sliders
+  in the GUI now read these bounds live instead of a hardcoded 50-95/55-100.
+- Fix: DaemonClient.watch_state_changed() supported only a single callback slot;
+  app.py (tray) and window.py (window) both register on the same shared client,
+  so the window's registration silently discarded the tray's. The tray never saw
+  another StateChanged update past app startup -- e.g. the profile checkmark
+  stayed stuck after switching profile from the tray menu. Now a list.
+- Tray: thermal profile and charge mode choices are now real flyout submenus
+  instead of a flat list under a disabled header.
+- Tray: emit ItemsPropertiesUpdated (not just LayoutUpdated) so a checkmark
+  actually flips live while its submenu is open, instead of only refreshing on
+  next open/close.
+- Tray: show battery percentage/status directly in the menu; add a charge-mode
+  submenu mirroring the thermal profile one.
+- Window: add a primary (hamburger) menu button to the header bar with
+  Rafraîchir l'état, Diagnostics (daemon/D-Bus/dell-wmi-sysman status),
+  Raccourcis clavier, Documentation and Signaler un problème links, and a
+  native Adw.AboutDialog.
+
 * Wed Sep 23 2026 Platform Power packaging <noreply@example.invalid> - 0.2.0-5
 - Security fix: validate battery name against list_batteries() in set_charge_thresholds() to prevent sysfs path traversal.
 - Security fix: validate attribute_id against sysfs.list_dir() in set_firmware_attribute() to prevent sysfs path traversal.

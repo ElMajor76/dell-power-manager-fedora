@@ -98,7 +98,7 @@ Le paquet RPM le plus récent est joint aux
 et se trouve aussi dans le dossier `packages/` du dépôt :
 
 ```bash
-sudo dnf install packages/platform-power-manager-0.2.0-5.fc44.noarch.rpm
+sudo dnf install packages/platform-power-manager-0.3.0-1.fc44.noarch.rpm
 ```
 
 ## Building the RPM
@@ -110,7 +110,7 @@ sudo dnf install rpmdevtools python3-gobject gtk4-devel libadwaita-devel desktop
 rpmdev-setuptree
 
 # from the project root (this directory)
-VERSION=0.2.0
+VERSION=0.3.0
 tar --transform "s,^,platform-power-manager-$VERSION/," \
     -czf ~/rpmbuild/SOURCES/platform-power-manager-$VERSION.tar.gz \
     src bin data LICENSE README.md

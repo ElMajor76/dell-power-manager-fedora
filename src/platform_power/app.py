@@ -18,7 +18,7 @@ APP_ID = "io.github.nplacide95.PlatformPower"
 # Keep in sync with Version: in platform-power-manager.spec and the
 # <release version="..."> in data/*.metainfo.xml -- there is no packaging
 # step that derives this from either of those, it's just repeated by hand.
-APP_VERSION = "0.2.0"
+APP_VERSION = "0.3.0"
 
 log = logging.getLogger("platform-power")
 

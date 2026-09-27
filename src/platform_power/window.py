@@ -15,7 +15,7 @@ from .pages.thermal import ThermalPage, get_thermal_icon
 
 # Keep in sync with app.APP_VERSION (duplicated rather than imported: app.py
 # imports this module, so importing back from app would be circular).
-_VERSION = "0.2.0"
+_VERSION = "0.3.0"
 
 _DAEMON_UNIT = "platform-power-daemon.service"
 
