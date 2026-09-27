@@ -4,7 +4,7 @@ import gi
 
 gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
-from gi.repository import Adw, GLib, Gtk
+from gi.repository import Adw, Gio, GLib, Gtk
 
 from .client import DaemonClient, DaemonUnavailable
 from .pages.battery import BatteryPage
@@ -59,6 +59,16 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._stack = Adw.ViewStack()
         self._switcher = Adw.ViewSwitcher(stack=self._stack, policy=Adw.ViewSwitcherPolicy.WIDE)
         header.set_title_widget(self._switcher)
+
+        primary_menu = Gio.Menu()
+        primary_menu.append("À propos de Dell Power Manager", "app.about")
+        menu_button = Gtk.MenuButton(
+            icon_name="open-menu-symbolic",
+            menu_model=primary_menu,
+            primary=True,
+            tooltip_text="Menu principal",
+        )
+        header.pack_end(menu_button)
 
         self._thermal_page = ThermalPage(self._set_platform_profile)
         self._battery_page = BatteryPage(

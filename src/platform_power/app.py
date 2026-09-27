@@ -15,6 +15,10 @@ from .tray import TrayIndicator
 from .window import PlatformPowerWindow
 
 APP_ID = "io.github.nplacide95.PlatformPower"
+# Keep in sync with Version: in platform-power-manager.spec and the
+# <release version="..."> in data/*.metainfo.xml -- there is no packaging
+# step that derives this from either of those, it's just repeated by hand.
+APP_VERSION = "0.2.0"
 
 log = logging.getLogger("platform-power")
 
@@ -85,9 +89,31 @@ class PlatformPowerApp(Adw.Application):
         self.add_action(close_action)
         self.set_accels_for_action("app.quit", ["<primary>q", "<primary>w"])
 
+        about_action = Gio.SimpleAction.new("about", None)
+        about_action.connect("activate", lambda *_: self._show_about())
+        self.add_action(about_action)
+
     def _on_close_shortcut(self) -> None:
         if self._window is not None:
             self._window.set_visible(False)
+
+    def _show_about(self) -> None:
+        about = Adw.AboutDialog(
+            application_name="Dell Power Manager",
+            application_icon=APP_ID,
+            version=APP_VERSION,
+            developer_name="Platform Power contributors",
+            license_type=Gtk.License.MIT_X11,
+            website="https://github.com/nplacide95/dell-power-manager-fedora",
+            issue_url="https://github.com/nplacide95/dell-power-manager-fedora/issues",
+            comments=(
+                "Profil thermique, seuils de charge de la batterie et réglages "
+                "d'alimentation du BIOS pour les portables Dell, via les "
+                "interfaces standard du noyau Linux. Projet indépendant, non "
+                "affilié à Dell Technologies."
+            ),
+        )
+        about.present(self._window)
 
     def do_activate(self) -> None:
         if self._window is None:
