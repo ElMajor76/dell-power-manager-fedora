@@ -17,6 +17,7 @@ from typing import Any
 from gi.repository import Gio, GLib
 
 from .daemon import BUS_NAME, IFACE, OBJECT_PATH
+from .i18n import _
 
 log = logging.getLogger("platform-power-client")
 
@@ -196,9 +197,9 @@ class DaemonClient:
 def _friendly_dbus_error(exc: GLib.Error) -> str:
     message = exc.message if hasattr(exc, "message") else str(exc)
     if "AccessDenied" in message or "not authorized" in message:
-        return "Permission refusée : authentification administrateur requise ou annulée."
+        return _("Permission denied: administrator authentication required or cancelled.")
     if "Invalid argument" in message or "EINVAL" in message:
-        return "Valeur non supportée par le matériel ou le BIOS."
+        return _("Value not supported by the hardware or BIOS.")
     if "Input/output error" in message or "EIO" in message:
-        return "Erreur d'entrée/sortie : le réglage est peut-être verrouillé par le BIOS."
+        return _("Input/output error: the setting may be locked by the BIOS.")
     return message

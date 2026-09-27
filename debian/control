@@ -2,7 +2,7 @@ Source: platform-power-manager
 Section: admin
 Priority: optional
 Maintainer: Platform Power contributors <noreply@example.invalid>
-Build-Depends: debhelper-compat (= 13)
+Build-Depends: debhelper-compat (= 13), gettext
 Standards-Version: 4.6.2
 Homepage: https://github.com/nplacide95/dell-power-manager-fedora
 Rules-Requires-Root: no

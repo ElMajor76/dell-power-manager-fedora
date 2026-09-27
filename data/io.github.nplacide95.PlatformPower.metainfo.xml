@@ -33,6 +33,11 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="0.4.0" date="2026-09-27">
+      <description>
+        <p>Translate the application to English so the source is readable by any contributor; the interface keeps displaying in French automatically on a French system via a proper gettext translation. Fix three menu section titles that were silently broken by an unescaped ampersand.</p>
+      </description>
+    </release>
     <release version="0.3.0" date="2026-09-27">
       <description>
         <p>Harden the systemd unit sandbox; fix charge thresholds silently reverting outside the firmware's own allowed range; fix the tray's profile/charge-mode checkmark not following the active setting; turn the tray's profile and charge-mode lists into proper flyout submenus; add a primary menu (refresh, diagnostics, keyboard shortcuts, documentation, report an issue, about).</p>

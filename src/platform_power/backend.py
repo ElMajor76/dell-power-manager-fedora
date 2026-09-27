@@ -43,6 +43,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 
 from . import sysfs
+from .i18n import _
 
 # --- Category matching and filtering for dell-wmi-sysman attributes --------
 #
@@ -234,7 +235,9 @@ def set_firmware_attribute(attr_id: str, value: str) -> None:
     display_name = sysfs.read_str(f"{base}/display_name") or attr_id
     if _categorize(attr_id, display_name) is None:
         raise ValueError(
-            f"La modification de l'attribut '{attr_id}' n'est pas autorisée via Dell Power Manager."
+            _("Changing the '{attr_id}' attribute is not allowed via Dell Power Manager.").format(
+                attr_id=attr_id
+            )
         )
 
     sysfs.write_str(f"{base}/current_value", value)
@@ -388,9 +391,9 @@ def set_charge_thresholds(name: str, start: int, end: int) -> None:
         raise FileNotFoundError(f"unknown battery: {name}")
 
     if not (0 <= start < end <= 100):
-        raise ValueError("Le seuil de début doit être inférieur au seuil de fin (entre 0 et 100 %).")
+        raise ValueError(_("The start threshold must be lower than the stop threshold (between 0 and 100%)."))
     if (end - start) < 1:
-        raise ValueError("L'écart entre le seuil de début et de fin doit être d'au moins 1 %.")
+        raise ValueError(_("The gap between the start and stop thresholds must be at least 1%."))
 
     base = f"{sysfs.POWER_SUPPLY_ROOT}/{name}"
     start_path = f"{base}/charge_control_start_threshold"
@@ -409,11 +412,15 @@ def set_charge_thresholds(name: str, start: int, end: int) -> None:
     start_min, start_max, end_min, end_max = _charge_threshold_bounds()
     if not (start_min <= start <= start_max):
         raise ValueError(
-            f"Le seuil de début doit être compris entre {start_min} % et {start_max} % sur ce matériel."
+            _("The start threshold must be between {lo}% and {hi}% on this hardware.").format(
+                lo=start_min, hi=start_max
+            )
         )
     if not (end_min <= end <= end_max):
         raise ValueError(
-            f"Le seuil de fin doit être compris entre {end_min} % et {end_max} % sur ce matériel."
+            _("The stop threshold must be between {lo}% and {hi}% on this hardware.").format(
+                lo=end_min, hi=end_max
+            )
         )
 
     # Lower the end threshold first only when it's safe to do so (avoids a

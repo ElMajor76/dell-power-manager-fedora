@@ -8,34 +8,36 @@ gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gtk
 
+from ..i18n import _
+
 _STATUS_LABELS = {
-    "Charging": "En charge",
-    "Discharging": "Sur batterie",
-    "Full": "Pleine",
-    "Not charging": "En pause (seuil atteint)",
-    "Unknown": "Inconnu",
+    "Charging": _("Charging"),
+    "Discharging": _("On battery"),
+    "Full": _("Full"),
+    "Not charging": _("Paused (threshold reached)"),
+    "Unknown": _("Unknown"),
 }
 
 _CHARGE_MODE_INFO = {
     "Adaptive": (
-        "Adaptatif",
-        "Ajuste automatiquement les paramètres de charge selon vos habitudes d'utilisation.",
+        _("Adaptive"),
+        _("Automatically adjusts charging settings based on your usage habits."),
     ),
     "Standard": (
-        "Standard",
-        "Charge complètement la batterie à une vitesse standard modérée.",
+        _("Standard"),
+        _("Fully charges the battery at a moderate, standard rate."),
     ),
     "Express": (
-        "ExpressCharge",
-        "Charge rapide de la batterie pour un usage nomade ou urgent.",
+        _("ExpressCharge"),
+        _("Fast battery charging for mobile or urgent use."),
     ),
     "PrimAcUse": (
-        "Principalement sur secteur",
-        "Protège la batterie en limitant la charge max pour un PC branché en permanence.",
+        _("Primarily AC use"),
+        _("Protects the battery by limiting maximum charge for a PC that stays plugged in."),
     ),
     "Custom": (
-        "Personnalisé",
-        "Définit manuellement les pourcentages de début et de fin de charge.",
+        _("Custom"),
+        _("Manually sets the start and stop charge percentages."),
     ),
 }
 
@@ -51,21 +53,21 @@ class BatteryPage(Adw.PreferencesPage):
         on_set_thresholds: Callable[[str, int, int], None],
         on_set_mode: Callable[[str], None] | None = None,
     ) -> None:
-        super().__init__(title="Batterie", icon_name="battery-symbolic")
+        super().__init__(title=_("Battery"), icon_name="battery-symbolic")
         self._on_set_thresholds = on_set_thresholds
         self._on_set_mode = on_set_mode
         self._battery_name: str | None = None
         self._updating = False
         self._charge_modes: list[str] = []
 
-        self._info_group = Adw.PreferencesGroup(title="État de la batterie")
+        self._info_group = Adw.PreferencesGroup(title=_("Battery status"))
         self.add(self._info_group)
 
-        self._row_status = Adw.ActionRow(title="État")
-        self._row_capacity = Adw.ActionRow(title="Charge actuelle")
-        self._row_health = Adw.ActionRow(title="Santé")
-        self._row_cycles = Adw.ActionRow(title="Cycles de charge")
-        self._row_model = Adw.ActionRow(title="Modèle")
+        self._row_status = Adw.ActionRow(title=_("Status"))
+        self._row_capacity = Adw.ActionRow(title=_("Current charge"))
+        self._row_health = Adw.ActionRow(title=_("Health"))
+        self._row_cycles = Adw.ActionRow(title=_("Charge cycles"))
+        self._row_model = Adw.ActionRow(title=_("Model"))
         for row in (
             self._row_status,
             self._row_capacity,
@@ -75,29 +77,29 @@ class BatteryPage(Adw.PreferencesPage):
         ):
             self._info_group.add(row)
 
-        # Mode de charge Dell natif
+        # Native Dell charging mode
         self._mode_group = Adw.PreferencesGroup(
-            title="Paramètres de charge de la batterie",
-            description=(
-                "Modes de charge officiels Dell : choisissez le comportement de charge "
-                "le plus adapté à votre utilisation."
+            title=_("Battery charging settings"),
+            description=_(
+                "Official Dell charging modes: pick the charging behavior best "
+                "suited to your usage."
             ),
         )
         self.add(self._mode_group)
 
-        self._mode_row = Adw.ComboRow(title="Mode de charge")
+        self._mode_row = Adw.ComboRow(title=_("Charging mode"))
         self._mode_row.connect("notify::selected", self._on_mode_selected)
         self._mode_group.add(self._mode_row)
 
-        self._mode_desc_row = Adw.ActionRow(title="Description")
+        self._mode_desc_row = Adw.ActionRow(title=_("Description"))
         self._mode_group.add(self._mode_desc_row)
 
-        # Seuils personnalisés
+        # Custom thresholds
         self._charge_group = Adw.PreferencesGroup(
-            title="Seuils de charge personnalisés (Custom)",
-            description=(
-                "Définit manuellement la plage de charge (ex. début à 50 %, arrêt à 80 %) "
-                "pour prolonger au maximum la durée de vie de la batterie."
+            title=_("Custom charge thresholds"),
+            description=_(
+                "Manually sets the charging range (e.g. start at 50%, stop at 80%) "
+                "to maximize battery lifespan."
             ),
         )
         self.add(self._charge_group)
@@ -107,24 +109,24 @@ class BatteryPage(Adw.PreferencesPage):
         # see backend._charge_threshold_bounds()), so this initial range is
         # never actually relied on to reject or accept a value.
         self._start_row = Adw.SpinRow.new_with_range(0, 100, 1)
-        self._start_row.set_title("Démarrer la charge à (%)")
+        self._start_row.set_title(_("Start charging at (%)"))
         self._end_row = Adw.SpinRow.new_with_range(0, 100, 1)
-        self._end_row.set_title("Arrêter la charge à (%)")
+        self._end_row.set_title(_("Stop charging at (%)"))
         self._end_max = 100
         self._charge_group.add(self._start_row)
         self._charge_group.add(self._end_row)
 
-        apply_row = Adw.ActionRow(title="Appliquer les seuils")
+        apply_row = Adw.ActionRow(title=_("Apply thresholds"))
         self._apply_button = Gtk.Button(
-            label="Appliquer", valign=Gtk.Align.CENTER, css_classes=["suggested-action"]
+            label=_("Apply"), valign=Gtk.Align.CENTER, css_classes=["suggested-action"]
         )
         self._apply_button.connect("clicked", self._on_apply)
         apply_row.add_suffix(self._apply_button)
         self._charge_group.add(apply_row)
 
         self._unsupported = Adw.StatusPage(
-            title="Batterie non détectée",
-            description="Aucune batterie compatible n'a été trouvée sur ce système.",
+            title=_("No battery detected"),
+            description=_("No compatible battery was found on this system."),
             icon_name="dialog-warning-symbolic",
             visible=False,
         )
@@ -153,13 +155,13 @@ class BatteryPage(Adw.PreferencesPage):
         capacity = battery.get("capacity_percent")
         self._row_capacity.set_subtitle(f"{capacity} %" if capacity is not None else "—")
         health = battery.get("health_percent")
-        self._row_health.set_subtitle(f"{health} %" if health is not None else "Non disponible")
+        self._row_health.set_subtitle(f"{health} %" if health is not None else _("Not available"))
         cycles = battery.get("cycle_count")
-        self._row_cycles.set_subtitle(str(cycles) if cycles else "Non disponible")
+        self._row_cycles.set_subtitle(str(cycles) if cycles else _("Not available"))
         model = " ".join(filter(None, [battery.get("manufacturer"), battery.get("model_name")]))
         self._row_model.set_subtitle(model or "—")
 
-        # Configuration des modes de charge Dell
+        # Dell native charging mode setup
         modes = battery.get("charge_mode_choices", [])
         current_mode = battery.get("charge_mode")
         has_modes = bool(modes)
@@ -179,7 +181,8 @@ class BatteryPage(Adw.PreferencesPage):
                     self._mode_desc_row.set_subtitle(_CHARGE_MODE_INFO.get(current_mode, ("", ""))[1])
 
             supported = battery.get("charge_threshold_supported", False)
-            # Afficher les curseurs personnalisés si le mode est Custom ou s'il n'y a pas de modes BIOS
+            # Show the custom sliders when the mode is Custom, or when there
+            # are no BIOS-native modes at all
             is_custom = (not has_modes) or (current_mode == "Custom")
             self._charge_group.set_visible(supported and is_custom)
 

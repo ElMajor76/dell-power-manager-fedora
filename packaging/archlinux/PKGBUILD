@@ -1,13 +1,13 @@
 # Maintainer: Platform Power contributors <noreply@example.invalid>
 pkgname=platform-power-manager
-pkgver=0.3.0
+pkgver=0.4.0
 pkgrel=1
 pkgdesc="Thermal profile, battery charging and BIOS power settings for Dell laptops (GTK4/libadwaita)"
 arch=('any')
 url="https://github.com/nplacide95/dell-power-manager-fedora"
 license=('MIT')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'libgudev' 'dbus')
-makedepends=('desktop-file-utils' 'appstream-glib' 'python-pytest')
+makedepends=('desktop-file-utils' 'appstream-glib' 'python-pytest' 'gettext')
 backup=('etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/ElMajor76/dell-power-manager-fedora/archive/refs/tags/v$pkgver.tar.gz")
 sha256sums=('1946512762f70c09625e76a05d58fbad7095c2fc5ae63c3f5375773188f0e2b8')
@@ -82,6 +82,12 @@ package() {
   done
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
+
+  # Translations. English is the in-source language; po/fr.po is the
+  # only translation for now.
+  msgfmt -c po/fr.po -o po/fr.mo
+  install -Dm644 po/fr.mo \
+    "$pkgdir/usr/share/locale/fr/LC_MESSAGES/platform-power-manager.mo"
 
   desktop-file-validate "$pkgdir/usr/share/applications/io.github.nplacide95.PlatformPower.desktop"
   appstream-util validate-relax --nonet \

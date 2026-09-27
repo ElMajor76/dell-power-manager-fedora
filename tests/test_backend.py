@@ -45,7 +45,7 @@ def test_set_firmware_attribute_rejects_blacklisted(monkeypatch, tmp_path):
 
     monkeypatch.setattr(backend, "find_sysman_root", lambda: str(root))
 
-    with pytest.raises(ValueError, match="n'est pas autorisée"):
+    with pytest.raises(ValueError, match="is not allowed"):
         backend.set_firmware_attribute("reset_bios", "Reset")
 
 
@@ -89,10 +89,10 @@ def test_set_charge_thresholds_validation(monkeypatch, tmp_path):
     monkeypatch.setattr(backend.sysfs, "POWER_SUPPLY_ROOT", str(tmp_path))
 
     # start >= end must fail
-    with pytest.raises(ValueError, match="inférieur"):
+    with pytest.raises(ValueError, match="lower than"):
         backend.set_charge_thresholds("BAT0", 80, 80)
 
-    with pytest.raises(ValueError, match="inférieur"):
+    with pytest.raises(ValueError, match="lower than"):
         backend.set_charge_thresholds("BAT0", 90, 80)
 
     # Valid thresholds should write
@@ -173,7 +173,7 @@ def test_set_charge_thresholds_rejects_out_of_firmware_range(monkeypatch, tmp_pa
     # dell-laptop node, which would otherwise happily accept 40 and then
     # get silently reverted once the firmware sync (further down in
     # set_charge_thresholds) refuses the out-of-range value.
-    with pytest.raises(ValueError, match="50 % et 95 %"):
+    with pytest.raises(ValueError, match="50% and 95%"):
         backend.set_charge_thresholds("BAT0", 40, 90)
     assert (bat / "charge_control_start_threshold").read_text(encoding="utf-8") == "50"
     assert (bat / "charge_control_end_threshold").read_text(encoding="utf-8") == "100"
@@ -182,7 +182,7 @@ def test_set_charge_thresholds_rejects_out_of_firmware_range(monkeypatch, tmp_pa
     # Above the firmware's own maximum for CustomChargeStop (90 in this
     # fixture, deliberately lower than the generic 0-100 sanity check would
     # allow) -- exercises the end-threshold branch instead.
-    with pytest.raises(ValueError, match="55 % et 90 %"):
+    with pytest.raises(ValueError, match="55% and 90%"):
         backend.set_charge_thresholds("BAT0", 60, 95)
 
     # Within both the kernel's 0-100 sanity range AND the firmware's
@@ -249,13 +249,16 @@ def test_firmware_page_mappings():
     assert _resolve_category({"id": "UnknownAttr", "category": "power_options"}) == "power_options"
     assert _resolve_category({"id": "TotallyUnknown", "category": "foo"}) == "other"
 
-    # Metadata & french translations
+    # Metadata & display-value overrides
     title, subtitle = _get_attr_info({"id": "AutoOnHr"})
-    assert "Heure" in title
+    assert "hour" in title.lower()
     assert len(subtitle) > 0
 
-    assert _VALUE_TRANSLATIONS["Disabled"] == "Désactivé"
-    assert _VALUE_TRANSLATIONS["Enabled"] == "Activé"
-    assert _VALUE_TRANSLATIONS["UltraPerformance"] == "Performances maximales"
+    # Only non-trivial overrides are kept (raw firmware tokens like
+    # "Disabled"/"Enabled" already read fine in English and fall through
+    # via _VALUE_TRANSLATIONS.get(v, v) instead of being listed here).
+    assert "Disabled" not in _VALUE_TRANSLATIONS
+    assert _VALUE_TRANSLATIONS["UltraPerformance"] == "Maximum performance"
+    assert _VALUE_TRANSLATIONS["PrimAcUse"] == "Primarily AC use"
 
 

@@ -27,6 +27,8 @@ gi.require_version("Gio", "2.0")
 gi.require_version("GLib", "2.0")
 from gi.repository import Gio, GLib
 
+from .i18n import _
+
 log = logging.getLogger("platform-power-tray")
 
 SNI_XML = """
@@ -143,10 +145,10 @@ MENU_XML = """
 """
 
 _PROFILE_LABELS: dict[str, str] = {
-    "cool": "Refroidissement",
-    "quiet": "Silencieux",
-    "balanced": "Équilibré",
-    "performance": "Performances",
+    "cool": _("Cool"),
+    "quiet": _("Quiet"),
+    "balanced": _("Balanced"),
+    "performance": _("Performance"),
 }
 
 # Short labels only, kept in sync with the longer (label, description) pairs
@@ -154,11 +156,11 @@ _PROFILE_LABELS: dict[str, str] = {
 # _PROFILE_LABELS above vs. pages/thermal.py, so the tray stays a
 # self-contained D-Bus service with no GTK page imports.
 _CHARGE_MODE_LABELS: dict[str, str] = {
-    "Adaptive": "Adaptatif",
-    "Standard": "Standard",
-    "Express": "ExpressCharge",
-    "PrimAcUse": "Principalement sur secteur",
-    "Custom": "Personnalisé",
+    "Adaptive": _("Adaptive"),
+    "Standard": _("Standard"),
+    "Express": _("ExpressCharge"),
+    "PrimAcUse": _("Primarily AC use"),
+    "Custom": _("Custom"),
 }
 
 ID_APP_TITLE = 1
@@ -482,9 +484,9 @@ class TrayIndicator:
             prof_label = _PROFILE_LABELS.get(
                 self._active_profile, self._active_profile.capitalize()
             )
-            desc = f"Profil : {prof_label}"
+            desc = _("Profile: {profile}").format(profile=prof_label)
             if self._battery_summary:
-                desc += f"  •  Batterie : {self._battery_summary}"
+                desc += "  •  " + _("Battery: {summary}").format(summary=self._battery_summary)
             pixmaps = self._get_icon_pixmap().unpack()
             return GLib.Variant(
                 "(sa(iiay)ss)",
@@ -560,7 +562,7 @@ class TrayIndicator:
         # 1: Title
         add(
             ID_APP_TITLE,
-            {"label": GLib.Variant("s", "Dell Power Manager"), "enabled": GLib.Variant("b", False)},
+            {"label": GLib.Variant("s", _("Dell Power Manager")), "enabled": GLib.Variant("b", False)},
         )
         # 2: Separator
         add(ID_SEP_1, {"type": GLib.Variant("s", "separator")})
@@ -571,7 +573,9 @@ class TrayIndicator:
             add(
                 ID_BATTERY_INFO,
                 {
-                    "label": GLib.Variant("s", f"Batterie : {self._battery_summary}"),
+                    "label": GLib.Variant(
+                        "s", _("Battery: {summary}").format(summary=self._battery_summary)
+                    ),
                     "enabled": GLib.Variant("b", False),
                 },
             )
@@ -583,7 +587,7 @@ class TrayIndicator:
             add(
                 ID_PROFILE_HEADER,
                 {
-                    "label": GLib.Variant("s", "Profil thermique"),
+                    "label": GLib.Variant("s", _("Thermal profile")),
                     "children-display": GLib.Variant("s", "submenu"),
                 },
             )
@@ -604,7 +608,7 @@ class TrayIndicator:
             add(
                 ID_PROFILE_HEADER,
                 {
-                    "label": GLib.Variant("s", "Profil thermique : non supporté par le matériel"),
+                    "label": GLib.Variant("s", _("Thermal profile: not supported by this hardware")),
                     "enabled": GLib.Variant("b", False),
                 },
             )
@@ -618,7 +622,7 @@ class TrayIndicator:
             add(
                 ID_CHARGE_MODE_HEADER,
                 {
-                    "label": GLib.Variant("s", "Mode de charge"),
+                    "label": GLib.Variant("s", _("Charging mode")),
                     "children-display": GLib.Variant("s", "submenu"),
                 },
             )
@@ -643,7 +647,7 @@ class TrayIndicator:
         add(
             ID_OPEN_APP,
             {
-                "label": GLib.Variant("s", "Ouvrir Dell Power Manager"),
+                "label": GLib.Variant("s", _("Open Dell Power Manager")),
                 "icon-name": GLib.Variant("s", "io.github.nplacide95.PlatformPower"),
             },
         )

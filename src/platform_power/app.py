@@ -11,6 +11,7 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gdk, Gio, GLib, Gtk
 
 from .client import DaemonClient, DaemonUnavailable
+from .i18n import _
 from .tray import TrayIndicator
 from .window import PlatformPowerWindow
 
@@ -18,7 +19,7 @@ APP_ID = "io.github.nplacide95.PlatformPower"
 # Keep in sync with Version: in platform-power-manager.spec and the
 # <release version="..."> in data/*.metainfo.xml -- there is no packaging
 # step that derives this from either of those, it's just repeated by hand.
-APP_VERSION = "0.3.0"
+APP_VERSION = "0.4.0"
 
 log = logging.getLogger("platform-power")
 
@@ -34,7 +35,7 @@ class PlatformPowerApp(Adw.Application):
             ord("m"),
             GLib.OptionFlags.NONE,
             GLib.OptionArg.NONE,
-            "Démarrer minimisé dans la zone de notification (systray)",
+            _("Start minimized in the notification area (systray)"),
             None,
         )
         self._start_minimized: bool = False
@@ -143,11 +144,11 @@ class PlatformPowerApp(Adw.Application):
             license_type=Gtk.License.MIT_X11,
             website="https://github.com/nplacide95/dell-power-manager-fedora",
             issue_url="https://github.com/nplacide95/dell-power-manager-fedora/issues",
-            comments=(
-                "Profil thermique, seuils de charge de la batterie et réglages "
-                "d'alimentation du BIOS pour les portables Dell, via les "
-                "interfaces standard du noyau Linux. Projet indépendant, non "
-                "affilié à Dell Technologies."
+            comments=_(
+                "Thermal profile, battery charge thresholds and BIOS power "
+                "settings for Dell laptops, via standard Linux kernel "
+                "interfaces. Independent project, not affiliated with Dell "
+                "Technologies."
             ),
         )
         about.present(self._window)

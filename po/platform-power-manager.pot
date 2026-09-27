@@ -1,0 +1,878 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-09-27 12:13+0200\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=CHARSET\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+#: src/platform_power/backend.py:238
+#, python-brace-format
+msgid ""
+"Changing the '{attr_id}' attribute is not allowed via Dell Power Manager."
+msgstr ""
+
+#: src/platform_power/backend.py:394
+msgid ""
+"The start threshold must be lower than the stop threshold (between 0 and "
+"100%)."
+msgstr ""
+
+#: src/platform_power/backend.py:396
+msgid "The gap between the start and stop thresholds must be at least 1%."
+msgstr ""
+
+#: src/platform_power/backend.py:415
+#, python-brace-format
+msgid "The start threshold must be between {lo}% and {hi}% on this hardware."
+msgstr ""
+
+#: src/platform_power/backend.py:421
+#, python-brace-format
+msgid "The stop threshold must be between {lo}% and {hi}% on this hardware."
+msgstr ""
+
+#: src/platform_power/client.py:200
+msgid "Permission denied: administrator authentication required or cancelled."
+msgstr ""
+
+#: src/platform_power/client.py:202
+msgid "Value not supported by the hardware or BIOS."
+msgstr ""
+
+#: src/platform_power/client.py:204
+msgid "Input/output error: the setting may be locked by the BIOS."
+msgstr ""
+
+#: src/platform_power/app.py:38
+msgid "Start minimized in the notification area (systray)"
+msgstr ""
+
+#: src/platform_power/app.py:148
+msgid ""
+"Thermal profile, battery charge thresholds and BIOS power settings for Dell "
+"laptops, via standard Linux kernel interfaces. Independent project, not "
+"affiliated with Dell Technologies."
+msgstr ""
+
+#: src/platform_power/window.py:76
+msgid "Refresh state"
+msgstr ""
+
+#: src/platform_power/window.py:77 src/platform_power/window.py:265
+msgid "Diagnostics"
+msgstr ""
+
+#: src/platform_power/window.py:81
+msgid "Keyboard shortcuts"
+msgstr ""
+
+#: src/platform_power/window.py:82
+msgid "Documentation"
+msgstr ""
+
+#: src/platform_power/window.py:83
+msgid "Report an issue"
+msgstr ""
+
+#: src/platform_power/window.py:87
+msgid "About Dell Power Manager"
+msgstr ""
+
+#: src/platform_power/window.py:94
+msgid "Main menu"
+msgstr ""
+
+#: src/platform_power/window.py:106 src/platform_power/pages/thermal.py:40
+msgid "Thermal"
+msgstr ""
+
+#: src/platform_power/window.py:109 src/platform_power/pages/battery.py:56
+msgid "Battery"
+msgstr ""
+
+#: src/platform_power/window.py:112 src/platform_power/pages/firmware.py:423
+msgid "Advanced BIOS"
+msgstr ""
+
+#: src/platform_power/window.py:119
+msgid "Service unavailable"
+msgstr ""
+
+#: src/platform_power/window.py:124
+msgid "Retry"
+msgstr ""
+
+#: src/platform_power/window.py:149
+msgid "Could not reach platform-power-daemon."
+msgstr ""
+
+#: src/platform_power/window.py:151
+msgid "Check: systemctl status platform-power-daemon"
+msgstr ""
+
+#: src/platform_power/window.py:237
+msgid "No connection to the service yet."
+msgstr ""
+
+#: src/platform_power/window.py:245
+msgid "State refreshed"
+msgstr ""
+
+#: src/platform_power/window.py:256 src/platform_power/window.py:258
+msgid "unknown"
+msgstr ""
+
+#: src/platform_power/window.py:274
+msgid "Installed version"
+msgstr ""
+
+#: src/platform_power/window.py:276
+msgid "platform-power-daemon service"
+msgstr ""
+
+#: src/platform_power/window.py:277
+msgid "Active"
+msgstr ""
+
+#: src/platform_power/window.py:279
+#, python-brace-format
+msgid "Inactive ({status})"
+msgstr ""
+
+#: src/platform_power/window.py:281
+msgid "D-Bus connection"
+msgstr ""
+
+#: src/platform_power/window.py:281
+msgid "Connected"
+msgstr ""
+
+#: src/platform_power/window.py:281
+msgid "Unavailable"
+msgstr ""
+
+#: src/platform_power/window.py:283
+msgid "dell-wmi-sysman BIOS detected"
+msgstr ""
+
+#: src/platform_power/window.py:284
+msgid "Yes"
+msgstr ""
+
+#: src/platform_power/window.py:284
+msgid "No (advanced BIOS features unavailable)"
+msgstr ""
+
+#: src/platform_power/window.py:287
+msgid "Exposed BIOS attributes"
+msgstr ""
+
+#: src/platform_power/window.py:289
+msgid "BIOS settings locked"
+msgstr ""
+
+#: src/platform_power/window.py:290
+msgid "Yes (BIOS administrator password is set)"
+msgstr ""
+
+#: src/platform_power/window.py:290
+msgid "No"
+msgstr ""
+
+#: src/platform_power/window.py:301
+msgid "General"
+msgstr ""
+
+#: src/platform_power/window.py:303
+msgid "Hide the window (the app keeps running in the background)"
+msgstr ""
+
+#: src/platform_power/window.py:305
+msgid "Show keyboard shortcuts"
+msgstr ""
+
+#: src/platform_power/tray.py:148 src/platform_power/pages/thermal.py:19
+msgid "Cool"
+msgstr ""
+
+#: src/platform_power/tray.py:149 src/platform_power/pages/thermal.py:18
+msgid "Quiet"
+msgstr ""
+
+#: src/platform_power/tray.py:150 src/platform_power/pages/thermal.py:20
+msgid "Balanced"
+msgstr ""
+
+#: src/platform_power/tray.py:151
+msgid "Performance"
+msgstr ""
+
+#: src/platform_power/tray.py:159 src/platform_power/pages/battery.py:23
+msgid "Adaptive"
+msgstr ""
+
+#: src/platform_power/tray.py:160 src/platform_power/pages/battery.py:27
+msgid "Standard"
+msgstr ""
+
+#: src/platform_power/tray.py:161 src/platform_power/pages/battery.py:31
+msgid "ExpressCharge"
+msgstr ""
+
+#: src/platform_power/tray.py:162 src/platform_power/pages/firmware.py:294
+#: src/platform_power/pages/battery.py:35
+msgid "Primarily AC use"
+msgstr ""
+
+#: src/platform_power/tray.py:163 src/platform_power/pages/battery.py:39
+msgid "Custom"
+msgstr ""
+
+#: src/platform_power/tray.py:487
+#, python-brace-format
+msgid "Profile: {profile}"
+msgstr ""
+
+#: src/platform_power/tray.py:489 src/platform_power/tray.py:577
+#, python-brace-format
+msgid "Battery: {summary}"
+msgstr ""
+
+#: src/platform_power/tray.py:565
+msgid "Dell Power Manager"
+msgstr ""
+
+#: src/platform_power/tray.py:590
+msgid "Thermal profile"
+msgstr ""
+
+#: src/platform_power/tray.py:611
+msgid "Thermal profile: not supported by this hardware"
+msgstr ""
+
+#: src/platform_power/tray.py:625 src/platform_power/pages/battery.py:90
+msgid "Charging mode"
+msgstr ""
+
+#: src/platform_power/tray.py:650
+msgid "Open Dell Power Manager"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:15
+msgid "Battery charging mode"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:16
+msgid ""
+"Firmware charging algorithm for the main battery (Adaptive, Standard, "
+"ExpressCharge, etc.)."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:19
+msgid "Scheduled advanced charging"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:20
+msgid "Time windows and thresholds to optimize battery lifespan and longevity."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:23
+#: src/platform_power/pages/firmware.py:182
+msgid "Peak Shift power"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:24
+msgid ""
+"Automatically switches to battery during peak electricity hours to reduce "
+"grid load."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:27
+msgid "BIOS thermal management"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:28
+msgid ""
+"Hardware cooling profiles and the thermal alert log recorded by the firmware."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:31
+msgid "Scheduled Auto-On"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:32
+msgid "Schedules automatic power-on at specific times and days."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:35
+msgid "Power, lid and wake"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:36
+msgid ""
+"Behavior on lid open, power-on when plugged in, and network wake (Wake on "
+"LAN)."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:39
+msgid "USB-C and docks (PowerShare)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:40
+msgid ""
+"Power options, PowerShare energy sharing, and wake via USB-C ports and Dell "
+"docks."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:43
+msgid "Keyboard backlight"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:44
+msgid "Auto-off delays for the keyboard backlight on AC power and on battery."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:47
+msgid "Performance and CPU"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:48
+msgid "Configuration of active processor cores in the firmware."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:51
+msgid "Other power settings"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:52
+msgid "Other power-related settings exposed by the BIOS."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:166
+msgid "Battery charging configuration"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:167
+msgid "Firmware charging algorithm for the main battery"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:170
+msgid "Advanced battery charging"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:171
+msgid "Enables the advanced charging schedule to preserve battery lifespan"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:174
+msgid "Custom charge start threshold"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:175
+msgid "Battery percentage at which charging resumes (50 to 95%)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:178
+msgid "Custom charge stop threshold"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:179
+msgid "Battery percentage at which charging stops (55 to 100%)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:183
+msgid "Switches to battery during peak electricity hours"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:186
+msgid "Minimum battery level under Peak Shift"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:187
+msgid "Battery percentage below which the PC switches back to AC power"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:190
+msgid "BIOS thermal profile"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:191
+msgid "Firmware's hardware balance between power and cooling"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:194
+msgid "Clear thermal log"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:195
+msgid "Clears the overheating alert history stored in the BIOS"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:198
+msgid "Auto-On mode"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:199
+msgid "Days on which the computer powers on automatically at the set time"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:202
+msgid "Auto-On hour (0-23)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:203
+msgid "Scheduled power-on time (24-hour format)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:206
+msgid "Auto-On minute (0-59)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:207
+msgid "Scheduled power-on minute"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:209
+msgid "Monday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:209
+msgid "Automatic power-on on Monday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:210
+msgid "Tuesday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:210
+msgid "Automatic power-on on Tuesday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:211
+msgid "Wednesday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:211
+msgid "Automatic power-on on Wednesday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:212
+msgid "Thursday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:212
+msgid "Automatic power-on on Thursday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:213
+msgid "Friday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:213
+msgid "Automatic power-on on Friday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:214
+msgid "Saturday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:214
+msgid "Automatic power-on on Saturday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:215
+msgid "Sunday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:215
+msgid "Automatic power-on on Sunday"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:217
+msgid "Power on when lid opens"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:218
+msgid "Automatically turns the PC on as soon as the lid is opened"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:221
+msgid "Lid close detection"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:222
+msgid "Enables the sleep sensor triggered when the lid is closed"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:225
+msgid "Power on when AC is plugged in"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:226
+msgid "Automatically starts the PC when a charger is plugged in"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:229
+msgid "Wake on LAN"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:230
+msgid "Starts the PC remotely via a network Ethernet packet"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:233
+msgid "AC adapter warnings"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:234
+msgid "Warns at startup if the charger's power is insufficient"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:237
+msgid "Clear power log"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:238
+msgid "Clears the history of power outages and power events"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:241
+msgid "USB PowerShare"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:242
+msgid "Charges external devices over USB even while the PC is off"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:245
+msgid "USB-C power output"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:246
+msgid "Electrical power allocated to USB-C peripherals"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:249
+msgid "Wake on USB-C dock"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:250
+msgid "Starts the computer when connected to a Dell dock"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:253
+msgid "USB-C dock priority"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:254
+msgid "Prioritizes the connected USB-C dock"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:257
+msgid "Dock Ethernet network"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:258
+msgid "Enables the LAN network port on the USB-C dock"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:261
+msgid "Dock audio"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:262
+msgid "Enables the audio controller on the USB-C dock"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:265
+msgid "Video/power-only USB-C ports"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:266
+msgid "Blocks USB data transfer for added security"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:269
+msgid "Keyboard backlight timeout (on AC)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:270
+msgid "Idle time before the keyboard backlight turns off while on AC power"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:273
+msgid "Keyboard backlight timeout (on battery)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:274
+msgid "Idle time before the keyboard backlight turns off while on battery"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:277
+msgid "Keyboard backlight at startup"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:278
+msgid ""
+"Briefly lights up the keyboard as soon as it's powered on (Sign of Life)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:281
+msgid "Active core selection"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:282
+msgid ""
+"Number of active processor cores (leave at maximum for best performance)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:288
+msgid "Weekdays (Mon-Fri)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:289
+msgid "Selected days"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:291
+msgid "Cool (increased fan)"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:292
+#: src/platform_power/pages/thermal.py:22
+msgid "Maximum performance"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:296
+msgid "LAN only"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:297
+msgid "LAN with PXE boot"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:299
+msgid "Keep log"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:301
+msgid "5 seconds"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:302
+msgid "10 seconds"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:303
+msgid "15 seconds"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:304
+msgid "30 seconds"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:305
+msgid "1 minute"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:306
+msgid "5 minutes"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:307
+msgid "15 minutes"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:308
+msgid "Never"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:310
+msgid "7.5 W"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:311
+msgid "15 W"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:313
+msgid "Automatic"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:430
+msgid ""
+"A BIOS administrator password is set: some settings below may refuse to be "
+"written."
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:446
+msgid "No BIOS attribute found"
+msgstr ""
+
+#: src/platform_power/pages/firmware.py:448
+msgid ""
+"The 'dell-wmi-sysman' kernel driver is not present, or this model doesn't "
+"expose its BIOS settings via WMI. These settings will remain accessible only "
+"at boot (F2)."
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:17
+msgid "Power saver"
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:21
+msgid "Balanced performance"
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:46
+msgid "Thermal management"
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:48
+msgid ""
+"Equivalent to Dell Power Manager's \"Thermal Management\" setting. Adjusts "
+"the balance between performance and fan noise/temperature via the platform's "
+"ACPI profile."
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:55
+msgid "Profile"
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:60
+#: src/platform_power/pages/battery.py:158
+#: src/platform_power/pages/battery.py:160
+msgid "Not available"
+msgstr ""
+
+#: src/platform_power/pages/thermal.py:62
+msgid ""
+"This kernel/firmware does not expose /sys/firmware/acpi/platform_profile. "
+"Update the BIOS and kernel, or check that the 'dell-laptop' module is loaded."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:14
+msgid "Charging"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:15
+msgid "On battery"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:16
+msgid "Full"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:17
+msgid "Paused (threshold reached)"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:18
+msgid "Unknown"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:24
+msgid "Automatically adjusts charging settings based on your usage habits."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:28
+msgid "Fully charges the battery at a moderate, standard rate."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:32
+msgid "Fast battery charging for mobile or urgent use."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:36
+msgid ""
+"Protects the battery by limiting maximum charge for a PC that stays plugged "
+"in."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:40
+msgid "Manually sets the start and stop charge percentages."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:63
+msgid "Battery status"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:66
+msgid "Status"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:67
+msgid "Current charge"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:68
+msgid "Health"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:69
+msgid "Charge cycles"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:70
+msgid "Model"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:82
+msgid "Battery charging settings"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:84
+msgid ""
+"Official Dell charging modes: pick the charging behavior best suited to your "
+"usage."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:94
+msgid "Description"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:99
+msgid "Custom charge thresholds"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:101
+msgid ""
+"Manually sets the charging range (e.g. start at 50%, stop at 80%) to "
+"maximize battery lifespan."
+msgstr ""
+
+#: src/platform_power/pages/battery.py:112
+msgid "Start charging at (%)"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:114
+msgid "Stop charging at (%)"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:119
+msgid "Apply thresholds"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:121
+msgid "Apply"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:128
+msgid "No battery detected"
+msgstr ""
+
+#: src/platform_power/pages/battery.py:129
+msgid "No compatible battery was found on this system."
+msgstr ""

@@ -9,8 +9,10 @@
   <icon_name>io.github.nplacide95.PlatformPower</icon_name>
 
   <action id="io.github.nplacide95.platform-power.set-thermal-profile">
-    <description>Changer le profil thermique</description>
-    <message>Une authentification est requise pour changer le profil thermique</message>
+    <description>Change the thermal profile</description>
+    <description xml:lang="fr">Changer le profil thermique</description>
+    <message>Authentication is required to change the thermal profile</message>
+    <message xml:lang="fr">Une authentification est requise pour changer le profil thermique</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -21,8 +23,10 @@
   </action>
 
   <action id="io.github.nplacide95.platform-power.set-charge-threshold">
-    <description>Modifier les seuils de charge de la batterie</description>
-    <message>Une authentification est requise pour modifier les seuils de charge</message>
+    <description>Change the battery charge thresholds</description>
+    <description xml:lang="fr">Modifier les seuils de charge de la batterie</description>
+    <message>Authentication is required to change the charge thresholds</message>
+    <message xml:lang="fr">Une authentification est requise pour modifier les seuils de charge</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>
@@ -31,8 +35,10 @@
   </action>
 
   <action id="io.github.nplacide95.platform-power.set-firmware-attribute">
-    <description>Modifier un réglage d'alimentation du BIOS</description>
-    <message>Une authentification administrateur est requise pour modifier ce réglage BIOS (Peak Shift, charge programmée, USB-C PowerShare, ...)</message>
+    <description>Change a BIOS power setting</description>
+    <description xml:lang="fr">Modifier un réglage d'alimentation du BIOS</description>
+    <message>Administrator authentication is required to change this BIOS setting (Peak Shift, scheduled charging, USB-C PowerShare, ...)</message>
+    <message xml:lang="fr">Une authentification administrateur est requise pour modifier ce réglage BIOS (Peak Shift, charge programmée, USB-C PowerShare, ...)</message>
     <defaults>
       <allow_any>no</allow_any>
       <allow_inactive>no</allow_inactive>

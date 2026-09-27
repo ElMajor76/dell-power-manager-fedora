@@ -1,0 +1,627 @@
+# French translation of platform-power-manager.
+# Copyright (C) 2025-2026 Platform Power contributors
+# This file is distributed under the same license as the platform-power-manager package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: platform-power-manager 0.3.0\n"
+"Report-Msgid-Bugs-To: https://github.com/nplacide95/dell-power-manager-fedora/issues\n"
+"POT-Creation-Date: 2026-09-27+0000\n"
+"PO-Revision-Date: 2026-09-27+0000\n"
+"Last-Translator: Platform Power contributors <noreply@example.invalid>\n"
+"Language-Team: French\n"
+"Language: fr\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+msgid "Battery charging mode"
+msgstr "Mode de charge de la batterie"
+
+msgid "Firmware charging algorithm for the main battery (Adaptive, Standard, ExpressCharge, etc.)."
+msgstr "Configuration de l'algorithme de charge du firmware pour la batterie principale (Adaptatif, Standard, ExpressCharge, etc.)."
+
+msgid "Scheduled advanced charging"
+msgstr "Charge avancée programmée"
+
+msgid "Time windows and thresholds to optimize battery lifespan and longevity."
+msgstr "Planification des plages horaires et des seuils pour optimiser la durée de vie et la longévité de la batterie."
+
+msgid "Peak Shift power"
+msgstr "Alimentation aux heures de pointe (Peak Shift)"
+
+msgid "Automatically switches to battery during peak electricity hours to reduce grid load."
+msgstr "Bascule automatiquement sur batterie pendant les heures de pointe pour limiter la consommation sur le réseau électrique."
+
+msgid "BIOS thermal management"
+msgstr "Gestion thermique BIOS"
+
+msgid "Hardware cooling profiles and the thermal alert log recorded by the firmware."
+msgstr "Profils de refroidissement matériels et journal des alertes thermiques enregistrés dans le firmware."
+
+msgid "Scheduled Auto-On"
+msgstr "Démarrage automatique programmé (Auto-On)"
+
+msgid "Schedules automatic power-on at specific times and days."
+msgstr "Planification de l'allumage automatique du système à des heures et jours précis."
+
+msgid "Power, lid and wake"
+msgstr "Alimentation, capot et réveil"
+
+msgid "Behavior on lid open, power-on when plugged in, and network wake (Wake on LAN)."
+msgstr "Comportement à l'ouverture de l'écran, allumage au branchement secteur et réveil par le réseau (Wake on LAN)."
+
+msgid "USB-C and docks (PowerShare)"
+msgstr "USB-C et stations d'accueil (PowerShare)"
+
+msgid "Power options, PowerShare energy sharing, and wake via USB-C ports and Dell docks."
+msgstr "Options d'alimentation, partage d'énergie PowerShare et réveil via les ports USB-C et stations d'accueil Dell."
+
+msgid "Keyboard backlight"
+msgstr "Rétroéclairage du clavier"
+
+msgid "Auto-off delays for the keyboard backlight on AC power and on battery."
+msgstr "Délais d'extinction automatique du rétroéclairage du clavier sur secteur et sur batterie."
+
+msgid "Performance and CPU"
+msgstr "Performances et processeur"
+
+msgid "Configuration of active processor cores in the firmware."
+msgstr "Configuration des cœurs de processeur actifs dans le firmware."
+
+msgid "Other power settings"
+msgstr "Autres paramètres d'alimentation"
+
+msgid "Other power-related settings exposed by the BIOS."
+msgstr "Autres réglages d'alimentation exposés par le BIOS."
+
+msgid "Battery charging configuration"
+msgstr "Configuration de charge de la batterie"
+
+msgid "Firmware charging algorithm for the main battery"
+msgstr "Algorithme de charge du firmware pour la batterie principale"
+
+msgid "Advanced battery charging"
+msgstr "Charge avancée de la batterie"
+
+msgid "Enables the advanced charging schedule to preserve battery lifespan"
+msgstr "Active le calendrier de charge avancée pour préserver la durée de vie"
+
+msgid "Custom charge start threshold"
+msgstr "Seuil de début de charge personnalisé"
+
+msgid "Battery percentage at which charging resumes (50 to 95%)"
+msgstr "Pourcentage de batterie auquel la recharge commence (50 à 95 %)"
+
+msgid "Custom charge stop threshold"
+msgstr "Seuil de fin de charge personnalisé"
+
+msgid "Battery percentage at which charging stops (55 to 100%)"
+msgstr "Pourcentage de batterie auquel la recharge s'arrête (55 à 100 %)"
+
+msgid "Switches to battery during peak electricity hours"
+msgstr "Bascule sur batterie pendant les heures de pointe électrique"
+
+msgid "Minimum battery level under Peak Shift"
+msgstr "Seuil minimal de batterie sous Peak Shift"
+
+msgid "Battery percentage below which the PC switches back to AC power"
+msgstr "Pourcentage de batterie sous lequel le PC repasse sur secteur"
+
+msgid "BIOS thermal profile"
+msgstr "Profil thermique BIOS"
+
+msgid "Firmware's hardware balance between power and cooling"
+msgstr "Équilibre matériel entre puissance et refroidissement du firmware"
+
+msgid "Clear thermal log"
+msgstr "Effacer le journal thermique"
+
+msgid "Clears the overheating alert history stored in the BIOS"
+msgstr "Efface l'historique des alertes de surchauffe dans le BIOS"
+
+msgid "Auto-On mode"
+msgstr "Mode de démarrage automatique"
+
+msgid "Days on which the computer powers on automatically at the set time"
+msgstr "Jours où l'ordinateur s'allume automatiquement à l'heure définie"
+
+msgid "Auto-On hour (0-23)"
+msgstr "Heure de démarrage automatique (0-23)"
+
+msgid "Scheduled power-on time (24-hour format)"
+msgstr "Heure d'allumage programmée (format 24 heures)"
+
+msgid "Auto-On minute (0-59)"
+msgstr "Minute de démarrage automatique (0-59)"
+
+msgid "Scheduled power-on minute"
+msgstr "Minute d'allumage programmée"
+
+msgid "Monday"
+msgstr "Lundi"
+
+msgid "Automatic power-on on Monday"
+msgstr "Allumage automatique le lundi"
+
+msgid "Tuesday"
+msgstr "Mardi"
+
+msgid "Automatic power-on on Tuesday"
+msgstr "Allumage automatique le mardi"
+
+msgid "Wednesday"
+msgstr "Mercredi"
+
+msgid "Automatic power-on on Wednesday"
+msgstr "Allumage automatique le mercredi"
+
+msgid "Thursday"
+msgstr "Jeudi"
+
+msgid "Automatic power-on on Thursday"
+msgstr "Allumage automatique le jeudi"
+
+msgid "Friday"
+msgstr "Vendredi"
+
+msgid "Automatic power-on on Friday"
+msgstr "Allumage automatique le vendredi"
+
+msgid "Saturday"
+msgstr "Samedi"
+
+msgid "Automatic power-on on Saturday"
+msgstr "Allumage automatique le samedi"
+
+msgid "Sunday"
+msgstr "Dimanche"
+
+msgid "Automatic power-on on Sunday"
+msgstr "Allumage automatique le dimanche"
+
+msgid "Power on when lid opens"
+msgstr "Démarrer à l'ouverture du capot"
+
+msgid "Automatically turns the PC on as soon as the lid is opened"
+msgstr "Allume automatiquement le PC dès l'ouverture de l'écran"
+
+msgid "Lid close detection"
+msgstr "Détection de fermeture du capot"
+
+msgid "Enables the sleep sensor triggered when the lid is closed"
+msgstr "Active le capteur de mise en veille à la fermeture de l'écran"
+
+msgid "Power on when AC is plugged in"
+msgstr "Allumer au branchement secteur"
+
+msgid "Automatically starts the PC when a charger is plugged in"
+msgstr "Démarre automatiquement le PC lorsqu'un chargeur est branché"
+
+msgid "Wake on LAN"
+msgstr "Réveil par le réseau (Wake on LAN)"
+
+msgid "Starts the PC remotely via a network Ethernet packet"
+msgstr "Démarre le PC à distance via un paquet réseau Ethernet"
+
+msgid "AC adapter warnings"
+msgstr "Avertissements d'adaptateur secteur"
+
+msgid "Warns at startup if the charger's power is insufficient"
+msgstr "Avertit au démarrage si la puissance du chargeur est insuffisante"
+
+msgid "Clear power log"
+msgstr "Effacer le journal d'alimentation"
+
+msgid "Clears the history of power outages and power events"
+msgstr "Efface l'historique des coupures et événements d'alimentation"
+
+msgid "USB PowerShare"
+msgstr "Partage d'énergie USB PowerShare"
+
+msgid "Charges external devices over USB even while the PC is off"
+msgstr "Recharge des appareils externes via USB même quand le PC est éteint"
+
+msgid "USB-C power output"
+msgstr "Puissance d'alimentation USB-C"
+
+msgid "Electrical power allocated to USB-C peripherals"
+msgstr "Puissance électrique allouée aux périphériques USB-C"
+
+msgid "Wake on USB-C dock"
+msgstr "Réveil sur station d'accueil USB-C"
+
+msgid "Starts the computer when connected to a Dell dock"
+msgstr "Démarre l'ordinateur lors du branchement à une station Dell"
+
+msgid "USB-C dock priority"
+msgstr "Priorité station d'accueil USB-C"
+
+msgid "Prioritizes the connected USB-C dock"
+msgstr "Priorise la station d'accueil USB-C connectée"
+
+msgid "Dock Ethernet network"
+msgstr "Réseau Ethernet de la station d'accueil"
+
+msgid "Enables the LAN network port on the USB-C dock"
+msgstr "Active le port réseau LAN de la station d'accueil USB-C"
+
+msgid "Dock audio"
+msgstr "Audio de la station d'accueil"
+
+msgid "Enables the audio controller on the USB-C dock"
+msgstr "Active le contrôleur audio de la station d'accueil USB-C"
+
+msgid "Video/power-only USB-C ports"
+msgstr "Ports USB-C vidéo et charge uniquement"
+
+msgid "Blocks USB data transfer for added security"
+msgstr "Bloque le transfert de données USB pour plus de sécurité"
+
+msgid "Keyboard backlight timeout (on AC)"
+msgstr "Délai d'éclairage clavier (sur secteur)"
+
+msgid "Idle time before the keyboard backlight turns off while on AC power"
+msgstr "Temps d'inactivité avant extinction du clavier branché sur secteur"
+
+msgid "Keyboard backlight timeout (on battery)"
+msgstr "Délai d'éclairage clavier (sur batterie)"
+
+msgid "Idle time before the keyboard backlight turns off while on battery"
+msgstr "Temps d'inactivité avant extinction du clavier sur batterie"
+
+msgid "Keyboard backlight at startup"
+msgstr "Éclairage du clavier au démarrage"
+
+msgid "Briefly lights up the keyboard as soon as it's powered on (Sign of Life)"
+msgstr "Illumine brièvement le clavier dès la mise sous tension (Sign of Life)"
+
+msgid "Active core selection"
+msgstr "Sélection des cœurs actifs"
+
+msgid "Number of active processor cores (leave at maximum for best performance)"
+msgstr "Nombre de cœurs processeur activés (laisser au maximum pour les meilleures performances)"
+
+msgid "Weekdays (Mon-Fri)"
+msgstr "Jours de semaine (Lun-Ven)"
+
+msgid "Selected days"
+msgstr "Jours sélectionnés"
+
+msgid "Cool (increased fan)"
+msgstr "Frais (Ventilation renforcée)"
+
+msgid "Maximum performance"
+msgstr "Performances maximales"
+
+msgid "Primarily AC use"
+msgstr "Principalement sur secteur"
+
+msgid "LAN only"
+msgstr "LAN uniquement"
+
+msgid "LAN with PXE boot"
+msgstr "LAN avec démarrage réseau PXE"
+
+msgid "Keep log"
+msgstr "Conserver le journal"
+
+msgid "5 seconds"
+msgstr "5 secondes"
+
+msgid "10 seconds"
+msgstr "10 secondes"
+
+msgid "15 seconds"
+msgstr "15 secondes"
+
+msgid "30 seconds"
+msgstr "30 secondes"
+
+msgid "1 minute"
+msgstr "1 minute"
+
+msgid "5 minutes"
+msgstr "5 minutes"
+
+msgid "15 minutes"
+msgstr "15 minutes"
+
+msgid "Never"
+msgstr "Jamais"
+
+msgid "7.5 W"
+msgstr "7,5 W"
+
+msgid "15 W"
+msgstr "15 W"
+
+msgid "Automatic"
+msgstr "Automatique"
+
+msgid "Advanced BIOS"
+msgstr "BIOS avancé"
+
+msgid "A BIOS administrator password is set: some settings below may refuse to be written."
+msgstr "Un mot de passe administrateur BIOS est défini : certains réglages ci-dessous peuvent refuser l'écriture."
+
+msgid "No BIOS attribute found"
+msgstr "Aucun attribut BIOS trouvé"
+
+msgid "The 'dell-wmi-sysman' kernel driver is not present, or this model doesn't expose its BIOS settings via WMI. These settings will remain accessible only at boot (F2)."
+msgstr "Le pilote noyau 'dell-wmi-sysman' n'est pas présent, ou ce modèle n'expose pas ses réglages BIOS via WMI. Ces réglages resteront accessibles uniquement au démarrage (F2)."
+
+msgid "Charging"
+msgstr "En charge"
+
+msgid "On battery"
+msgstr "Sur batterie"
+
+msgid "Full"
+msgstr "Pleine"
+
+msgid "Paused (threshold reached)"
+msgstr "En pause (seuil atteint)"
+
+msgid "Unknown"
+msgstr "Inconnu"
+
+msgid "Adaptive"
+msgstr "Adaptatif"
+
+msgid "Automatically adjusts charging settings based on your usage habits."
+msgstr "Ajuste automatiquement les paramètres de charge selon vos habitudes d'utilisation."
+
+msgid "Standard"
+msgstr "Standard"
+
+msgid "Fully charges the battery at a moderate, standard rate."
+msgstr "Charge complètement la batterie à une vitesse standard modérée."
+
+msgid "ExpressCharge"
+msgstr "ExpressCharge"
+
+msgid "Fast battery charging for mobile or urgent use."
+msgstr "Charge rapide de la batterie pour un usage nomade ou urgent."
+
+msgid "Protects the battery by limiting maximum charge for a PC that stays plugged in."
+msgstr "Protège la batterie en limitant la charge max pour un PC branché en permanence."
+
+msgid "Custom"
+msgstr "Personnalisé"
+
+msgid "Manually sets the start and stop charge percentages."
+msgstr "Définit manuellement les pourcentages de début et de fin de charge."
+
+msgid "Battery"
+msgstr "Batterie"
+
+msgid "Battery status"
+msgstr "État de la batterie"
+
+msgid "Status"
+msgstr "État"
+
+msgid "Current charge"
+msgstr "Charge actuelle"
+
+msgid "Health"
+msgstr "Santé"
+
+msgid "Charge cycles"
+msgstr "Cycles de charge"
+
+msgid "Model"
+msgstr "Modèle"
+
+msgid "Battery charging settings"
+msgstr "Paramètres de charge de la batterie"
+
+msgid "Official Dell charging modes: pick the charging behavior best suited to your usage."
+msgstr "Modes de charge officiels Dell : choisissez le comportement de charge le plus adapté à votre utilisation."
+
+msgid "Charging mode"
+msgstr "Mode de charge"
+
+msgid "Description"
+msgstr "Description"
+
+msgid "Custom charge thresholds"
+msgstr "Seuils de charge personnalisés (Custom)"
+
+msgid "Manually sets the charging range (e.g. start at 50%, stop at 80%) to maximize battery lifespan."
+msgstr "Définit manuellement la plage de charge (ex. début à 50 %, arrêt à 80 %) pour prolonger au maximum la durée de vie de la batterie."
+
+msgid "Start charging at (%)"
+msgstr "Démarrer la charge à (%)"
+
+msgid "Stop charging at (%)"
+msgstr "Arrêter la charge à (%)"
+
+msgid "Apply thresholds"
+msgstr "Appliquer les seuils"
+
+msgid "Apply"
+msgstr "Appliquer"
+
+msgid "No battery detected"
+msgstr "Batterie non détectée"
+
+msgid "No compatible battery was found on this system."
+msgstr "Aucune batterie compatible n'a été trouvée sur ce système."
+
+msgid "Not available"
+msgstr "Non disponible"
+
+msgid "Power saver"
+msgstr "Économie d'énergie"
+
+msgid "Quiet"
+msgstr "Silencieux"
+
+msgid "Cool"
+msgstr "Frais"
+
+msgid "Balanced"
+msgstr "Équilibré"
+
+msgid "Balanced performance"
+msgstr "Performance équilibrée"
+
+msgid "Thermal"
+msgstr "Thermique"
+
+msgid "Thermal management"
+msgstr "Gestion thermique"
+
+msgid "Equivalent to Dell Power Manager's \"Thermal Management\" setting. Adjusts the balance between performance and fan noise/temperature via the platform's ACPI profile."
+msgstr "Équivalent du réglage « Thermal Management » de Dell Power Manager. Ajuste l'équilibre entre performances et bruit du ventilateur / température via le profil ACPI de la plateforme."
+
+msgid "Profile"
+msgstr "Profil"
+
+msgid "This kernel/firmware does not expose /sys/firmware/acpi/platform_profile. Update the BIOS and kernel, or check that the 'dell-laptop' module is loaded."
+msgstr "Ce noyau/firmware n'expose pas /sys/firmware/acpi/platform_profile. Mettez à jour le BIOS et le noyau, ou vérifiez que le module 'dell-laptop' est chargé."
+
+msgid "Performance"
+msgstr "Performances"
+
+msgid "Profile: {profile}"
+msgstr "Profil : {profile}"
+
+msgid "Battery: {summary}"
+msgstr "Batterie : {summary}"
+
+msgid "Thermal profile"
+msgstr "Profil thermique"
+
+msgid "Thermal profile: not supported by this hardware"
+msgstr "Profil thermique : non supporté par le matériel"
+
+msgid "Open Dell Power Manager"
+msgstr "Ouvrir Dell Power Manager"
+
+msgid "Refresh state"
+msgstr "Rafraîchir l'état"
+
+msgid "Diagnostics"
+msgstr "Diagnostics"
+
+msgid "Keyboard shortcuts"
+msgstr "Raccourcis clavier"
+
+msgid "Documentation"
+msgstr "Documentation"
+
+msgid "Report an issue"
+msgstr "Signaler un problème"
+
+msgid "About Dell Power Manager"
+msgstr "À propos de Dell Power Manager"
+
+msgid "Main menu"
+msgstr "Menu principal"
+
+msgid "Service unavailable"
+msgstr "Service indisponible"
+
+msgid "Retry"
+msgstr "Réessayer"
+
+msgid "Could not reach platform-power-daemon."
+msgstr "Impossible de contacter platform-power-daemon."
+
+msgid "Check: systemctl status platform-power-daemon"
+msgstr "Vérifiez : systemctl status platform-power-daemon"
+
+msgid "No connection to the service yet."
+msgstr "Aucune connexion au service pour l'instant."
+
+msgid "State refreshed"
+msgstr "État actualisé"
+
+msgid "unknown"
+msgstr "inconnu"
+
+msgid "Installed version"
+msgstr "Version installée"
+
+msgid "platform-power-daemon service"
+msgstr "Service platform-power-daemon"
+
+msgid "Active"
+msgstr "Actif"
+
+msgid "Inactive ({status})"
+msgstr "Inactif ({status})"
+
+msgid "D-Bus connection"
+msgstr "Connexion D-Bus"
+
+msgid "Connected"
+msgstr "Établie"
+
+msgid "Unavailable"
+msgstr "Indisponible"
+
+msgid "dell-wmi-sysman BIOS detected"
+msgstr "BIOS dell-wmi-sysman détecté"
+
+msgid "Yes"
+msgstr "Oui"
+
+msgid "No (advanced BIOS features unavailable)"
+msgstr "Non (fonctions BIOS avancées indisponibles)"
+
+msgid "Exposed BIOS attributes"
+msgstr "Attributs BIOS exposés"
+
+msgid "BIOS settings locked"
+msgstr "Réglages BIOS verrouillés"
+
+msgid "Yes (BIOS administrator password is set)"
+msgstr "Oui (mot de passe administrateur BIOS actif)"
+
+msgid "No"
+msgstr "Non"
+
+msgid "General"
+msgstr "Général"
+
+msgid "Hide the window (the app keeps running in the background)"
+msgstr "Masquer la fenêtre (l'application continue en arrière-plan)"
+
+msgid "Show keyboard shortcuts"
+msgstr "Afficher les raccourcis clavier"
+
+msgid "Start minimized in the notification area (systray)"
+msgstr "Démarrer minimisé dans la zone de notification (systray)"
+
+msgid "Thermal profile, battery charge thresholds and BIOS power settings for Dell laptops, via standard Linux kernel interfaces. Independent project, not affiliated with Dell Technologies."
+msgstr "Profil thermique, seuils de charge de la batterie et réglages d'alimentation du BIOS pour les portables Dell, via les interfaces standard du noyau Linux. Projet indépendant, non affilié à Dell Technologies."
+
+msgid "Permission denied: administrator authentication required or cancelled."
+msgstr "Permission refusée : authentification administrateur requise ou annulée."
+
+msgid "Value not supported by the hardware or BIOS."
+msgstr "Valeur non supportée par le matériel ou le BIOS."
+
+msgid "Input/output error: the setting may be locked by the BIOS."
+msgstr "Erreur d'entrée/sortie : le réglage est peut-être verrouillé par le BIOS."
+
+msgid "Changing the '{attr_id}' attribute is not allowed via Dell Power Manager."
+msgstr "La modification de l'attribut '{attr_id}' n'est pas autorisée via Dell Power Manager."
+
+msgid "The start threshold must be lower than the stop threshold (between 0 and 100%)."
+msgstr "Le seuil de début doit être inférieur au seuil de fin (entre 0 et 100 %)."
+
+msgid "The gap between the start and stop thresholds must be at least 1%."
+msgstr "L'écart entre le seuil de début et de fin doit être d'au moins 1 %."
+
+msgid "The start threshold must be between {lo}% and {hi}% on this hardware."
+msgstr "Le seuil de début doit être compris entre {lo} % et {hi} % sur ce matériel."
+
+msgid "The stop threshold must be between {lo}% and {hi}% on this hardware."
+msgstr "Le seuil de fin doit être compris entre {lo} % et {hi} % sur ce matériel."
+

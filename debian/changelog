@@ -1,3 +1,18 @@
+platform-power-manager (0.4.0-1) unstable; urgency=medium
+
+  * i18n: source code UI strings are now in English (readable by any
+    contributor); French is preserved as a full gettext translation
+    (po/fr.po, 203 strings) and keeps displaying automatically on a
+    French-locale system, matching the previous French-only behaviour.
+  * Fix: three menu section titles contained a raw "&", which
+    Adw.PreferencesGroup interprets as Pango markup and silently failed
+    to render. Reworded using "and" instead, in both languages.
+  * Fix: the polkit policy file had no xml:lang markers, so its actions
+    always showed in French regardless of system locale. Now has
+    English defaults with xml:lang="fr" overrides.
+
+ -- Platform Power contributors <noreply@example.invalid>  Sun, 27 Sep 2026 12:00:00 +0000
+
 platform-power-manager (0.3.0-1) unstable; urgency=medium
 
   * Security: harden the systemd unit (PrivateTmp, RestrictAddressFamilies=AF_UNIX,

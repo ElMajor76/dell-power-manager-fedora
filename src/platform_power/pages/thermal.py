@@ -8,16 +8,18 @@ gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gdk, GObject, Gtk
 
+from ..i18n import _
+
 # ACPI platform_profile choices as defined by the kernel
 # (Documentation/ABI/testing/sysfs-platform_profile), with the labels
 # Dell's own tools use for the equivalent thermal presets.
 _PROFILE_LABELS = {
-    "low-power": "Économie d'énergie",
-    "quiet": "Silencieux",
-    "cool": "Frais",
-    "balanced": "Équilibré",
-    "balanced-performance": "Performance équilibrée",
-    "performance": "Performances maximales",
+    "low-power": _("Power saver"),
+    "quiet": _("Quiet"),
+    "cool": _("Cool"),
+    "balanced": _("Balanced"),
+    "balanced-performance": _("Balanced performance"),
+    "performance": _("Maximum performance"),
 }
 
 
@@ -35,31 +37,31 @@ class ThermalPage(Adw.PreferencesPage):
     __gtype_name__ = "PlatformPowerThermalPage"
 
     def __init__(self, on_set_profile: Callable[[str], None]) -> None:
-        super().__init__(title="Thermique", icon_name=get_thermal_icon())
+        super().__init__(title=_("Thermal"), icon_name=get_thermal_icon())
         self._on_set_profile = on_set_profile
         self._choices: list[str] = []
         self._updating = False
 
         self._group = Adw.PreferencesGroup(
-            title="Gestion thermique",
-            description=(
-                "Équivalent du réglage « Thermal Management » de Dell Power "
-                "Manager. Ajuste l'équilibre entre performances et bruit du "
-                "ventilateur / température via le profil ACPI de la plateforme."
+            title=_("Thermal management"),
+            description=_(
+                "Equivalent to Dell Power Manager's \"Thermal Management\" "
+                "setting. Adjusts the balance between performance and fan "
+                "noise/temperature via the platform's ACPI profile."
             ),
         )
         self.add(self._group)
 
-        self._row = Adw.ComboRow(title="Profil")
+        self._row = Adw.ComboRow(title=_("Profile"))
         self._row.connect("notify::selected", self._on_selected)
         self._group.add(self._row)
 
         self._unsupported = Adw.StatusPage(
-            title="Non disponible",
-            description=(
-                "Ce noyau/firmware n'expose pas /sys/firmware/acpi/platform_profile. "
-                "Mettez à jour le BIOS et le noyau, ou vérifiez que le module "
-                "'dell-laptop' est chargé."
+            title=_("Not available"),
+            description=_(
+                "This kernel/firmware does not expose "
+                "/sys/firmware/acpi/platform_profile. Update the BIOS and "
+                "kernel, or check that the 'dell-laptop' module is loaded."
             ),
             icon_name="dialog-warning-symbolic",
             visible=False,

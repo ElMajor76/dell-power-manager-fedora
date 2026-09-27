@@ -9,13 +9,14 @@ gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, Gio, GLib, Gtk
 
 from .client import DaemonClient, DaemonUnavailable
+from .i18n import _
 from .pages.battery import BatteryPage
 from .pages.firmware import FirmwarePage
 from .pages.thermal import ThermalPage, get_thermal_icon
 
 # Keep in sync with app.APP_VERSION (duplicated rather than imported: app.py
 # imports this module, so importing back from app would be circular).
-_VERSION = "0.3.0"
+_VERSION = "0.4.0"
 
 _DAEMON_UNIT = "platform-power-daemon.service"
 
@@ -72,25 +73,25 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         primary_menu = Gio.Menu()
 
         state_section = Gio.Menu()
-        state_section.append("Rafraîchir l'état", "app.refresh")
-        state_section.append("Diagnostics", "app.diagnostics")
+        state_section.append(_("Refresh state"), "app.refresh")
+        state_section.append(_("Diagnostics"), "app.diagnostics")
         primary_menu.append_section(None, state_section)
 
         help_section = Gio.Menu()
-        help_section.append("Raccourcis clavier", "app.shortcuts")
-        help_section.append("Documentation", "app.docs")
-        help_section.append("Signaler un problème", "app.report-issue")
+        help_section.append(_("Keyboard shortcuts"), "app.shortcuts")
+        help_section.append(_("Documentation"), "app.docs")
+        help_section.append(_("Report an issue"), "app.report-issue")
         primary_menu.append_section(None, help_section)
 
         about_section = Gio.Menu()
-        about_section.append("À propos de Dell Power Manager", "app.about")
+        about_section.append(_("About Dell Power Manager"), "app.about")
         primary_menu.append_section(None, about_section)
 
         menu_button = Gtk.MenuButton(
             icon_name="open-menu-symbolic",
             menu_model=primary_menu,
             primary=True,
-            tooltip_text="Menu principal",
+            tooltip_text=_("Main menu"),
         )
         header.pack_end(menu_button)
 
@@ -102,25 +103,25 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._firmware_page = FirmwarePage(self._set_firmware_attribute)
 
         self._stack.add_titled_with_icon(
-            self._thermal_page, "thermal", "Thermique", get_thermal_icon()
+            self._thermal_page, "thermal", _("Thermal"), get_thermal_icon()
         )
         self._stack.add_titled_with_icon(
-            self._battery_page, "battery", "Batterie", "battery-symbolic"
+            self._battery_page, "battery", _("Battery"), "battery-symbolic"
         )
         self._stack.add_titled_with_icon(
-            self._firmware_page, "firmware", "BIOS avancé", "applications-engineering-symbolic"
+            self._firmware_page, "firmware", _("Advanced BIOS"), "applications-engineering-symbolic"
         )
 
         self._content_bin = Adw.Bin(child=self._stack)
         toolbar_view.set_content(self._content_bin)
 
         self._error_page = Adw.StatusPage(
-            title="Service indisponible",
+            title=_("Service unavailable"),
             icon_name="dialog-error-symbolic",
             visible=False,
         )
         retry = Gtk.Button(
-            label="Réessayer", halign=Gtk.Align.CENTER, css_classes=["pill", "suggested-action"]
+            label=_("Retry"), halign=Gtk.Align.CENTER, css_classes=["pill", "suggested-action"]
         )
         retry.connect("clicked", lambda _b: self._connect_daemon())
         self._error_page.set_child(retry)
@@ -145,9 +146,9 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
 
     def _show_unavailable(self, detail: str) -> None:
         self._error_page.set_description(
-            "Impossible de contacter platform-power-daemon.\n"
+            _("Could not reach platform-power-daemon.") + "\n"
             f"{detail}\n\n"
-            "Vérifiez : systemctl status platform-power-daemon"
+            + _("Check: systemctl status platform-power-daemon")
         )
         self._content_bin.set_child(self._error_page)
         self._error_page.set_visible(True)
@@ -225,15 +226,15 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         self._show_error(str(exc))
         GLib.idle_add(self._refresh)
 
-    # -- Menu actions (Rafraîchir / Diagnostics / Raccourcis / liens) -------
+    # -- Menu actions (Refresh / Diagnostics / Shortcuts / links) -----------
 
     def refresh_from_menu(self) -> None:
-        """Like _refresh(), but for the explicit "Rafraîchir l'état" menu
-        item: give visible feedback either way, since a manual refresh that
+        """Like _refresh(), but for the explicit "Refresh state" menu item:
+        give visible feedback either way, since a manual refresh that
         appears to do nothing (when nothing actually changed) reads as
         broken rather than as "already up to date"."""
         if self._client is None:
-            self._show_error("Aucune connexion au service pour l'instant.")
+            self._show_error(_("No connection to the service yet."))
             return
         try:
             state = self._client.get_state()
@@ -241,7 +242,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
             self._show_error(str(exc))
             return
         self._apply_state(state)
-        toast = Adw.Toast(title="État actualisé", timeout=2)
+        toast = Adw.Toast(title=_("State refreshed"), timeout=2)
         self._toast_overlay.add_toast(toast)
 
     def show_diagnostics(self) -> None:
@@ -252,16 +253,16 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
                 text=True,
                 timeout=2,
             )
-            daemon_status = result.stdout.strip() or "inconnu"
+            daemon_status = result.stdout.strip() or _("unknown")
         except Exception:
-            daemon_status = "inconnu"
+            daemon_status = _("unknown")
 
         state = self._last_state or {}
         sysman_present = state.get("sysman_present", False)
         firmware_count = len(state.get("firmware_attributes", []))
         firmware_locked = state.get("firmware_attributes_locked", False)
 
-        dialog = Adw.Dialog(title="Diagnostics", content_width=440)
+        dialog = Adw.Dialog(title=_("Diagnostics"), content_width=440)
         page = Adw.PreferencesPage()
         group = Adw.PreferencesGroup()
         page.add(group)
@@ -270,29 +271,41 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         def row(title: str, subtitle: str) -> None:
             group.add(Adw.ActionRow(title=title, subtitle=subtitle))
 
-        row("Version installée", _VERSION)
+        row(_("Installed version"), _VERSION)
         row(
-            "Service platform-power-daemon",
-            "Actif" if daemon_status == "active" else f"Inactif ({daemon_status})",
+            _("platform-power-daemon service"),
+            _("Active")
+            if daemon_status == "active"
+            else _("Inactive ({status})").format(status=daemon_status),
         )
-        row("Connexion D-Bus", "Établie" if self._client is not None else "Indisponible")
+        row(_("D-Bus connection"), _("Connected") if self._client is not None else _("Unavailable"))
         row(
-            "BIOS dell-wmi-sysman détecté",
-            "Oui" if sysman_present else "Non (fonctions BIOS avancées indisponibles)",
+            _("dell-wmi-sysman BIOS detected"),
+            _("Yes") if sysman_present else _("No (advanced BIOS features unavailable)"),
         )
         if sysman_present:
-            row("Attributs BIOS exposés", str(firmware_count))
+            row(_("Exposed BIOS attributes"), str(firmware_count))
             row(
-                "Réglages BIOS verrouillés",
-                "Oui (mot de passe administrateur BIOS actif)" if firmware_locked else "Non",
+                _("BIOS settings locked"),
+                _("Yes (BIOS administrator password is set)") if firmware_locked else _("No"),
             )
 
         dialog.present(self)
 
     def show_shortcuts(self) -> None:
+        # Escaped defensively: these go into a hand-built XML string below,
+        # and a translation could plausibly contain "&" or other XML-special
+        # characters (this bit us for real once already, see firmware.py's
+        # category titles / the Gtk-WARNING about unescaped "&" in one of
+        # them before it got fixed).
+        general_title = GLib.markup_escape_text(_("General"))
+        hide_title = GLib.markup_escape_text(
+            _("Hide the window (the app keeps running in the background)")
+        )
+        show_shortcuts_title = GLib.markup_escape_text(_("Show keyboard shortcuts"))
         builder = Gtk.Builder()
         builder.add_from_string(
-            """
+            f"""
             <interface>
               <object class="GtkShortcutsWindow" id="shortcuts">
                 <property name="modal">1</property>
@@ -301,16 +314,16 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
                     <property name="visible">1</property>
                     <child>
                       <object class="GtkShortcutsGroup">
-                        <property name="title" translatable="no">Général</property>
+                        <property name="title" translatable="no">{general_title}</property>
                         <child>
                           <object class="GtkShortcutsShortcut">
-                            <property name="title" translatable="no">Masquer la fenêtre (l'application continue en arrière-plan)</property>
+                            <property name="title" translatable="no">{hide_title}</property>
                             <property name="accelerator">&lt;primary&gt;q &lt;primary&gt;w</property>
                           </object>
                         </child>
                         <child>
                           <object class="GtkShortcutsShortcut">
-                            <property name="title" translatable="no">Afficher les raccourcis clavier</property>
+                            <property name="title" translatable="no">{show_shortcuts_title}</property>
                             <property name="accelerator">&lt;primary&gt;question</property>
                           </object>
                         </child>

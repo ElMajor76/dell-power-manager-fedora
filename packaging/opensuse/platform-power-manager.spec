@@ -1,5 +1,5 @@
 Name:           platform-power-manager
-Version:        0.3.0
+Version:        0.4.0
 Release:        1%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
@@ -33,6 +33,7 @@ BuildRequires:  python3-devel
 BuildRequires:  systemd-rpm-macros
 BuildRequires:  desktop-file-utils
 BuildRequires:  appstream-glib
+BuildRequires:  gettext
 
 Requires:       python3-gobject
 Requires:       typelib-1_0-Gtk-4_0
@@ -123,6 +124,12 @@ install -Dm644 data/io.github.nplacide95.PlatformPower.metainfo.xml \
 install -Dm644 data/io.github.nplacide95.PlatformPower.autostart.desktop \
     %{buildroot}%{_sysconfdir}/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
 
+# Translations. English is the in-source language; po/fr.po is the only
+# translation for now.
+msgfmt -c po/fr.po -o po/fr.mo
+install -Dm644 po/fr.mo %{buildroot}%{_datadir}/locale/fr/LC_MESSAGES/%{name}.mo
+%find_lang %{name}
+
 %check
 desktop-file-validate %{buildroot}%{_datadir}/applications/io.github.nplacide95.PlatformPower.desktop
 desktop-file-validate %{buildroot}%{_sysconfdir}/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
@@ -141,7 +148,7 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %systemd_postun_with_restart platform-power-daemon.service
 gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 
-%files
+%files -f %{name}.lang
 %license LICENSE
 %doc README.md
 %{python3_sitelib}/platform_power/
@@ -159,6 +166,20 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_datadir}/metainfo/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Sun Sep 27 2026 Platform Power packaging <noreply@example.invalid> - 0.4.0-1
+- i18n: the source code's UI strings are now in English (readable by any
+  contributor); French is preserved as a full gettext translation
+  (po/fr.po, 203 strings) and keeps displaying automatically on a
+  French-locale system, matching the previous French-only behaviour.
+- Fix: three menu section titles ("Power, lid & wake", "USB-C & docks",
+  "Performance & CPU") contained a raw "&", which Adw.PreferencesGroup
+  interprets as Pango markup and silently failed to render. Reworded
+  using "and" instead of escaping, in both languages.
+- Fix: the polkit policy file had no xml:lang markers at all, so its
+  three actions always showed in French to every user regardless of
+  their system locale. Now has English defaults with xml:lang="fr"
+  overrides, matching standard polkit i18n convention.
+
 * Sun Sep 27 2026 Platform Power packaging <noreply@example.invalid> - 0.3.0-1
 - Security: harden the systemd unit (PrivateTmp, RestrictAddressFamilies=AF_UNIX,
   RestrictNamespaces, LockPersonality, MemoryDenyWriteExecute, SystemCallFilter).

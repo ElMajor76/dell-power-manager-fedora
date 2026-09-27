@@ -8,50 +8,52 @@ gi.require_version("Adw", "1")
 gi.require_version("Gtk", "4.0")
 from gi.repository import Adw, GObject, Gtk
 
+from ..i18n import _
+
 _CATEGORY_TITLES: dict[str, tuple[str, str]] = {
     "battery_mode": (
-        "Mode de charge de la batterie",
-        "Configuration de l'algorithme de charge du firmware pour la batterie principale (Adaptatif, Standard, ExpressCharge, etc.).",
+        _("Battery charging mode"),
+        _("Firmware charging algorithm for the main battery (Adaptive, Standard, ExpressCharge, etc.)."),
     ),
     "advanced_charge": (
-        "Charge avancée programmée",
-        "Planification des plages horaires et des seuils pour optimiser la durée de vie et la longévité de la batterie.",
+        _("Scheduled advanced charging"),
+        _("Time windows and thresholds to optimize battery lifespan and longevity."),
     ),
     "peak_shift": (
-        "Alimentation aux heures de pointe (Peak Shift)",
-        "Bascule automatiquement sur batterie pendant les heures de pointe pour limiter la consommation sur le réseau électrique.",
+        _("Peak Shift power"),
+        _("Automatically switches to battery during peak electricity hours to reduce grid load."),
     ),
     "thermal": (
-        "Gestion thermique BIOS",
-        "Profils de refroidissement matériels et journal des alertes thermiques enregistrés dans le firmware.",
+        _("BIOS thermal management"),
+        _("Hardware cooling profiles and the thermal alert log recorded by the firmware."),
     ),
     "auto_on": (
-        "Démarrage automatique programmé (Auto-On)",
-        "Planification de l'allumage automatique du système à des heures et jours précis.",
+        _("Scheduled Auto-On"),
+        _("Schedules automatic power-on at specific times and days."),
     ),
     "power_options": (
-        "Alimentation, capot & Réveil",
-        "Comportement à l'ouverture de l'écran, allumage au branchement secteur et réveil par le réseau (Wake on LAN).",
+        _("Power, lid and wake"),
+        _("Behavior on lid open, power-on when plugged in, and network wake (Wake on LAN)."),
     ),
     "usb_c": (
-        "USB-C & Stations d'accueil (PowerShare)",
-        "Options d'alimentation, partage d'énergie PowerShare et réveil via les ports USB-C et stations d'accueil Dell.",
+        _("USB-C and docks (PowerShare)"),
+        _("Power options, PowerShare energy sharing, and wake via USB-C ports and Dell docks."),
     ),
     "keyboard_backlight": (
-        "Rétroéclairage du clavier",
-        "Délais d'extinction automatique du rétroéclairage du clavier sur secteur et sur batterie.",
+        _("Keyboard backlight"),
+        _("Auto-off delays for the keyboard backlight on AC power and on battery."),
     ),
     "cpu_performance": (
-        "Performances & Processeur",
-        "Configuration des cœurs de processeur actifs dans le firmware.",
+        _("Performance and CPU"),
+        _("Configuration of active processor cores in the firmware."),
     ),
     "other": (
-        "Autres paramètres d'alimentation",
-        "Autres réglages d'alimentation exposés par le BIOS.",
+        _("Other power settings"),
+        _("Other power-related settings exposed by the BIOS."),
     ),
 }
 
-# Ordre d'affichage logique et ergonomique des catégories
+# Logical, user-friendly display order for categories
 _CATEGORY_ORDER: list[str] = [
     "battery_mode",
     "advanced_charge",
@@ -161,172 +163,154 @@ _ATTRIBUTE_SORT_KEYS: dict[str, int] = {
 
 _ATTRIBUTE_METADATA: dict[str, tuple[str, str]] = {
     "PrimaryBattChargeCfg": (
-        "Configuration de charge de la batterie",
-        "Algorithme de charge du firmware pour la batterie principale",
+        _("Battery charging configuration"),
+        _("Firmware charging algorithm for the main battery"),
     ),
     "AdvBatteryChargeCfg": (
-        "Charge avancée de la batterie",
-        "Active le calendrier de charge avancée pour préserver la durée de vie",
+        _("Advanced battery charging"),
+        _("Enables the advanced charging schedule to preserve battery lifespan"),
     ),
     "CustomChargeStart": (
-        "Seuil de début de charge personnalisé",
-        "Pourcentage de batterie auquel la recharge commence (50 à 95 %)",
+        _("Custom charge start threshold"),
+        _("Battery percentage at which charging resumes (50 to 95%)"),
     ),
     "CustomChargeStop": (
-        "Seuil de fin de charge personnalisé",
-        "Pourcentage de batterie auquel la recharge s'arrête (55 à 100 %)",
+        _("Custom charge stop threshold"),
+        _("Battery percentage at which charging stops (55 to 100%)"),
     ),
     "PeakShiftCfg": (
-        "Alimentation aux heures de pointe (Peak Shift)",
-        "Bascule sur batterie pendant les heures de pointe électrique",
+        _("Peak Shift power"),
+        _("Switches to battery during peak electricity hours"),
     ),
     "PeakShiftBatteryThreshold": (
-        "Seuil minimal de batterie sous Peak Shift",
-        "Pourcentage de batterie sous lequel le PC repasse sur secteur",
+        _("Minimum battery level under Peak Shift"),
+        _("Battery percentage below which the PC switches back to AC power"),
     ),
     "ThermalManagement": (
-        "Profil thermique BIOS",
-        "Équilibre matériel entre puissance et refroidissement du firmware",
+        _("BIOS thermal profile"),
+        _("Firmware's hardware balance between power and cooling"),
     ),
     "ThermalLogClear": (
-        "Effacer le journal thermique",
-        "Efface l'historique des alertes de surchauffe dans le BIOS",
+        _("Clear thermal log"),
+        _("Clears the overheating alert history stored in the BIOS"),
     ),
     "AutoOn": (
-        "Mode de démarrage automatique",
-        "Jours où l'ordinateur s'allume automatiquement à l'heure définie",
+        _("Auto-On mode"),
+        _("Days on which the computer powers on automatically at the set time"),
     ),
     "AutoOnHr": (
-        "Heure de démarrage automatique (0-23)",
-        "Heure d'allumage programmée (format 24 heures)",
+        _("Auto-On hour (0-23)"),
+        _("Scheduled power-on time (24-hour format)"),
     ),
     "AutoOnMn": (
-        "Minute de démarrage automatique (0-59)",
-        "Minute d'allumage programmée",
+        _("Auto-On minute (0-59)"),
+        _("Scheduled power-on minute"),
     ),
-    "AutoOnMon": ("Lundi", "Allumage automatique le lundi"),
-    "AutoOnTue": ("Mardi", "Allumage automatique le mardi"),
-    "AutoOnWed": ("Mercredi", "Allumage automatique le mercredi"),
-    "AutoOnThur": ("Jeudi", "Allumage automatique le jeudi"),
-    "AutoOnFri": ("Vendredi", "Allumage automatique le vendredi"),
-    "AutoOnSat": ("Samedi", "Allumage automatique le samedi"),
-    "AutoOnSun": ("Dimanche", "Allumage automatique le dimanche"),
+    "AutoOnMon": (_("Monday"), _("Automatic power-on on Monday")),
+    "AutoOnTue": (_("Tuesday"), _("Automatic power-on on Tuesday")),
+    "AutoOnWed": (_("Wednesday"), _("Automatic power-on on Wednesday")),
+    "AutoOnThur": (_("Thursday"), _("Automatic power-on on Thursday")),
+    "AutoOnFri": (_("Friday"), _("Automatic power-on on Friday")),
+    "AutoOnSat": (_("Saturday"), _("Automatic power-on on Saturday")),
+    "AutoOnSun": (_("Sunday"), _("Automatic power-on on Sunday")),
     "PowerOnLidOpen": (
-        "Démarrer à l'ouverture du capot",
-        "Allume automatiquement le PC dès l'ouverture de l'écran",
+        _("Power on when lid opens"),
+        _("Automatically turns the PC on as soon as the lid is opened"),
     ),
     "LidSwitch": (
-        "Détection de fermeture du capot",
-        "Active le capteur de mise en veille à la fermeture de l'écran",
+        _("Lid close detection"),
+        _("Enables the sleep sensor triggered when the lid is closed"),
     ),
     "WakeOnAc": (
-        "Allumer au branchement secteur",
-        "Démarre automatiquement le PC lorsqu'un chargeur est branché",
+        _("Power on when AC is plugged in"),
+        _("Automatically starts the PC when a charger is plugged in"),
     ),
     "WakeOnLan": (
-        "Réveil par le réseau (Wake on LAN)",
-        "Démarre le PC à distance via un paquet réseau Ethernet",
+        _("Wake on LAN"),
+        _("Starts the PC remotely via a network Ethernet packet"),
     ),
     "PowerWarn": (
-        "Avertissements d'adaptateur secteur",
-        "Avertit au démarrage si la puissance du chargeur est insuffisante",
+        _("AC adapter warnings"),
+        _("Warns at startup if the charger's power is insufficient"),
     ),
     "PowerLogClear": (
-        "Effacer le journal d'alimentation",
-        "Efface l'historique des coupures et événements d'alimentation",
+        _("Clear power log"),
+        _("Clears the history of power outages and power events"),
     ),
     "UsbPowerShare": (
-        "Partage d'énergie USB PowerShare",
-        "Recharge des appareils externes via USB même quand le PC est éteint",
+        _("USB PowerShare"),
+        _("Charges external devices over USB even while the PC is off"),
     ),
     "TypeCPower": (
-        "Puissance d'alimentation USB-C",
-        "Puissance électrique allouée aux périphériques USB-C",
+        _("USB-C power output"),
+        _("Electrical power allocated to USB-C peripherals"),
     ),
     "WakeOnDock": (
-        "Réveil sur station d'accueil USB-C",
-        "Démarre l'ordinateur lors du branchement à une station Dell",
+        _("Wake on USB-C dock"),
+        _("Starts the computer when connected to a Dell dock"),
     ),
     "TypeCDockOverride": (
-        "Priorité station d'accueil USB-C",
-        "Priorise la station d'accueil USB-C connectée",
+        _("USB-C dock priority"),
+        _("Prioritizes the connected USB-C dock"),
     ),
     "TypeCDockLan": (
-        "Réseau Ethernet de la station d'accueil",
-        "Active le port réseau LAN de la station d'accueil USB-C",
+        _("Dock Ethernet network"),
+        _("Enables the LAN network port on the USB-C dock"),
     ),
     "TypeCDockAudio": (
-        "Audio de la station d'accueil",
-        "Active le contrôleur audio de la station d'accueil USB-C",
+        _("Dock audio"),
+        _("Enables the audio controller on the USB-C dock"),
     ),
     "VideoPowerOnlyPorts": (
-        "Ports USB-C vidéo et charge uniquement",
-        "Bloque le transfert de données USB pour plus de sécurité",
+        _("Video/power-only USB-C ports"),
+        _("Blocks USB data transfer for added security"),
     ),
     "KbdBacklightTimeoutAc": (
-        "Délai d'éclairage clavier (sur secteur)",
-        "Temps d'inactivité avant extinction du clavier branché sur secteur",
+        _("Keyboard backlight timeout (on AC)"),
+        _("Idle time before the keyboard backlight turns off while on AC power"),
     ),
     "KbdBacklightTimeoutBatt": (
-        "Délai d'éclairage clavier (sur batterie)",
-        "Temps d'inactivité avant extinction du clavier sur batterie",
+        _("Keyboard backlight timeout (on battery)"),
+        _("Idle time before the keyboard backlight turns off while on battery"),
     ),
     "SignOfLifeByKbdBacklight": (
-        "Éclairage du clavier au démarrage",
-        "Illumine brièvement le clavier dès la mise sous tension (Sign of Life)",
+        _("Keyboard backlight at startup"),
+        _("Briefly lights up the keyboard as soon as it's powered on (Sign of Life)"),
     ),
     "CpuCoreExt": (
-        "Sélection des cœurs actifs",
-        "Nombre de cœurs processeur activés (laisser au maximum pour les meilleures performances)",
+        _("Active core selection"),
+        _("Number of active processor cores (leave at maximum for best performance)"),
     ),
 }
 
 _VALUE_TRANSLATIONS: dict[str, str] = {
-    # États binaires
-    "Disabled": "Désactivé",
-    "Enabled": "Activé",
-    "Off": "Désactivé",
-    "On": "Activé",
-    # Jours et programmation
-    "Everyday": "Tous les jours",
-    "Weekdays": "Jours de semaine (Lun-Ven)",
-    "SelectDays": "Jours sélectionnés",
-    # Modes thermiques
-    "Optimized": "Optimisé",
-    "Cool": "Frais (Ventilation renforcée)",
-    "Quiet": "Silencieux",
-    "UltraPerformance": "Performances maximales",
-    # Modes de charge
-    "Adaptive": "Adaptatif",
-    "Standard": "Standard",
-    "Express": "ExpressCharge",
-    "PrimAcUse": "Principalement sur secteur",
-    "Custom": "Personnalisé",
-    # Réveil réseau
-    "LanOnly": "LAN uniquement",
-    "LanWithPxeBoot": "LAN avec démarrage réseau PXE",
-    # Journaux d'événements
-    "Keep": "Conserver le journal",
-    "Clear": "Effacer",
-    # Délais de rétroéclairage
-    "5s": "5 secondes",
-    "10s": "10 secondes",
-    "15s": "15 secondes",
-    "30s": "30 secondes",
-    "1m": "1 minute",
-    "5m": "5 minutes",
-    "15m": "15 minutes",
-    "Never": "Jamais",
-    # Puissance électrique
-    "7.5W": "7,5 W",
-    "15W": "15 W",
-    # Niveaux génériques
-    "None": "Aucun",
-    "All": "Tous",
-    "Auto": "Automatique",
-    "Low": "Faible",
-    "Medium": "Moyen",
-    "High": "Élevé",
+    # Scheduling
+    "Weekdays": _("Weekdays (Mon-Fri)"),
+    "SelectDays": _("Selected days"),
+    # Thermal modes
+    "Cool": _("Cool (increased fan)"),
+    "UltraPerformance": _("Maximum performance"),
+    # Charging modes
+    "PrimAcUse": _("Primarily AC use"),
+    # Network wake
+    "LanOnly": _("LAN only"),
+    "LanWithPxeBoot": _("LAN with PXE boot"),
+    # Event logs
+    "Keep": _("Keep log"),
+    # Backlight timeouts
+    "5s": _("5 seconds"),
+    "10s": _("10 seconds"),
+    "15s": _("15 seconds"),
+    "30s": _("30 seconds"),
+    "1m": _("1 minute"),
+    "5m": _("5 minutes"),
+    "15m": _("15 minutes"),
+    "Never": _("Never"),
+    # Power
+    "7.5W": _("7.5 W"),
+    "15W": _("15 W"),
+    # Generic levels
+    "Auto": _("Automatic"),
 }
 
 
@@ -430,21 +414,21 @@ class _AttributeRow:
 
 class FirmwarePage(Adw.PreferencesPage):
     """Auto-discovered BIOS power attributes from dell-wmi-sysman, grouped
-    into well-ordered, user-friendly categories with full French localisation.
+    into well-ordered, user-friendly, translatable categories.
     """
 
     __gtype_name__ = "PlatformPowerFirmwarePage"
 
     def __init__(self, on_set_attribute: Callable[[str, str], None]) -> None:
-        super().__init__(title="BIOS avancé", icon_name="applications-engineering-symbolic")
+        super().__init__(title=_("Advanced BIOS"), icon_name="applications-engineering-symbolic")
         self._on_set_attribute = on_set_attribute
         self._rows: dict[str, _AttributeRow] = {}
         self._groups: dict[str, Adw.PreferencesGroup] = {}
 
         self._locked_banner = Adw.Banner(
-            title=(
-                "Un mot de passe administrateur BIOS est défini : certains "
-                "réglages ci-dessous peuvent refuser l'écriture."
+            title=_(
+                "A BIOS administrator password is set: some settings below "
+                "may refuse to be written."
             )
         )
         self._locked_banner.set_revealed(False)
@@ -459,11 +443,11 @@ class FirmwarePage(Adw.PreferencesPage):
             self.add(group)
 
         self._empty = Adw.StatusPage(
-            title="Aucun attribut BIOS trouvé",
-            description=(
-                "Le pilote noyau 'dell-wmi-sysman' n'est pas présent, ou ce "
-                "modèle n'expose pas ses réglages BIOS via WMI. Ces réglages "
-                "resteront accessibles uniquement au démarrage (F2)."
+            title=_("No BIOS attribute found"),
+            description=_(
+                "The 'dell-wmi-sysman' kernel driver is not present, or this "
+                "model doesn't expose its BIOS settings via WMI. These "
+                "settings will remain accessible only at boot (F2)."
             ),
             icon_name="dialog-information-symbolic",
             visible=False,

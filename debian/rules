@@ -46,6 +46,12 @@ override_dh_auto_install:
 	        $(PKG)/usr/share/icons/hicolor/$${sz}x$${sz}/apps/io.github.nplacide95.PlatformPower.png; \
 	done
 
+	# Translations. English is the in-source language; po/fr.po is the
+	# only translation for now.
+	msgfmt -c po/fr.po -o po/fr.mo
+	install -Dm644 po/fr.mo \
+	    $(PKG)/usr/share/locale/fr/LC_MESSAGES/platform-power-manager.mo
+
 override_dh_installsystemd:
 	# The unit is named platform-power-daemon.service (matching
 	# SystemdService= in data/dbus/*.Daemon1.service), not
