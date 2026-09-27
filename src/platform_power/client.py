@@ -59,11 +59,19 @@ class DaemonClient:
         # unavailable. Real availability is proven by the first GetState()
         # call succeeding (see window.py's _connect_daemon).
 
-        self._on_state_changed: Callable[[dict], None] | None = None
+        # A list, not a single slot: both the app (for the tray) and each
+        # window register their own StateChanged callback on this same
+        # shared DaemonClient. A single `self._on_state_changed = callback`
+        # slot here used to mean whichever of the two called
+        # watch_state_changed() *last* silently stole every future update
+        # from the other -- in practice the window's own call in its
+        # __init__ always ran after app.py's, so the tray's callback was
+        # overwritten and it never saw another update past app startup.
+        self._on_state_changed: list[Callable[[dict], None]] = []
         self._signal_handler_id = self._proxy.connect("g-signal", self._on_g_signal)
 
     def watch_state_changed(self, callback: Callable[[dict], None]) -> None:
-        self._on_state_changed = callback
+        self._on_state_changed.append(callback)
 
     def close(self) -> None:
         """Disconnect from the daemon's StateChanged signal.
@@ -77,12 +85,14 @@ class DaemonClient:
         if self._signal_handler_id is not None:
             self._proxy.disconnect(self._signal_handler_id)
             self._signal_handler_id = None
-        self._on_state_changed = None
+        self._on_state_changed = []
 
     def _on_g_signal(self, proxy, sender_name, signal_name, parameters) -> None:
-        if signal_name == "StateChanged" and self._on_state_changed is not None:
+        if signal_name == "StateChanged" and self._on_state_changed:
             (state_json,) = parameters.unpack()
-            self._on_state_changed(json.loads(state_json))
+            state = json.loads(state_json)
+            for callback in list(self._on_state_changed):
+                callback(state)
 
     def _call(self, method: str, arg_types: str, args: tuple, reply_types: str = ""):
         try:
