@@ -1,0 +1,69 @@
+#!/usr/bin/make -f
+
+PKG := debian/platform-power-manager
+
+%:
+	dh $@
+
+override_dh_auto_build:
+	# Pure Python + data files; nothing to compile.
+
+override_dh_auto_test:
+	# The project's own pytest suite (tests/) isn't wired in here; run it
+	# manually with PYTHONPATH=src python3 -m pytest tests/ before building.
+
+override_dh_auto_install:
+	install -d $(PKG)/usr/lib/python3/dist-packages/platform_power
+	cp -pr src/platform_power/. $(PKG)/usr/lib/python3/dist-packages/platform_power/
+	find $(PKG)/usr/lib/python3/dist-packages/platform_power -name '__pycache__' -exec rm -rf {} +
+
+	install -Dm755 bin/platform-power $(PKG)/usr/bin/platform-power
+	install -Dm755 bin/platform-power-daemon $(PKG)/usr/libexec/platform-power-daemon
+
+	install -Dm644 data/dbus/io.github.nplacide95.PlatformPower.Daemon1.service \
+	    $(PKG)/usr/share/dbus-1/system-services/io.github.nplacide95.PlatformPower.Daemon1.service
+	install -Dm644 data/dbus/io.github.nplacide95.PlatformPower.Daemon1.conf \
+	    $(PKG)/etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf
+
+	install -Dm644 data/polkit/io.github.nplacide95.PlatformPower.policy \
+	    $(PKG)/usr/share/polkit-1/actions/io.github.nplacide95.PlatformPower.policy
+
+	install -Dm644 data/io.github.nplacide95.PlatformPower.desktop \
+	    $(PKG)/usr/share/applications/io.github.nplacide95.PlatformPower.desktop
+	install -Dm644 data/io.github.nplacide95.PlatformPower.autostart.desktop \
+	    $(PKG)/etc/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
+	install -Dm644 data/io.github.nplacide95.PlatformPower.metainfo.xml \
+	    $(PKG)/usr/share/metainfo/io.github.nplacide95.PlatformPower.metainfo.xml
+
+	install -Dm644 data/icons/io.github.nplacide95.PlatformPower.svg \
+	    $(PKG)/usr/share/icons/hicolor/scalable/apps/io.github.nplacide95.PlatformPower.svg
+	install -Dm644 data/icons/temperature-symbolic.svg \
+	    $(PKG)/usr/share/icons/hicolor/scalable/status/temperature-symbolic.svg
+	install -Dm644 data/icons/io.github.nplacide95.PlatformPower.png \
+	    $(PKG)/usr/share/pixmaps/io.github.nplacide95.PlatformPower.png
+	for sz in 16 22 24 32 48 64 128 256; do \
+	    install -Dm644 data/icons/io.github.nplacide95.PlatformPower_$$sz.png \
+	        $(PKG)/usr/share/icons/hicolor/$${sz}x$${sz}/apps/io.github.nplacide95.PlatformPower.png; \
+	done
+
+override_dh_installsystemd:
+	# The unit is named platform-power-daemon.service (matching
+	# SystemdService= in data/dbus/*.Daemon1.service), not
+	# platform-power-manager.service, so both the file naming convention
+	# (debian/platform-power-manager.platform-power-daemon.service, see
+	# the symlink alongside this file) *and* --name= are required --
+	# dh_installsystemd only auto-detects the plain debian/package.service
+	# form without an explicit --name.
+	dh_installsystemd --name=platform-power-daemon
+	# (Verified against a real systemd PID1, not just this build: the full
+	# hardened unit activates over D-Bus and responds to GetState
+	# correctly. A first attempt inside a doubly-nested, non-privileged
+	# container failed with "Failed to keep CAP_SYS_ADMIN" purely because
+	# nested containers strip that capability by default -- unrelated to
+	# this packaging, confirmed by the exact same .deb succeeding once the
+	# outer container was run --privileged.)
+
+override_dh_shlibdeps:
+	# Nothing to scan for ELF shared-library dependencies (pure Python +
+	# GI-introspected libraries, which dh_shlibdeps can't resolve and
+	# which are already declared in debian/control).

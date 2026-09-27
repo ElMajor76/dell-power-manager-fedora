@@ -1,0 +1,21 @@
+platform-power-manager (0.3.0-1) unstable; urgency=medium
+
+  * Security: harden the systemd unit (PrivateTmp, RestrictAddressFamilies=AF_UNIX,
+    RestrictNamespaces, LockPersonality, MemoryDenyWriteExecute, SystemCallFilter).
+  * Fix: set_charge_thresholds() now validates against the firmware's own min/max
+    before writing anything, instead of silently reverting an out-of-range value.
+  * Fix: DaemonClient.watch_state_changed() now supports multiple subscribers, so
+    the tray keeps receiving state updates after the window opens.
+  * Tray: flyout submenus for thermal profile and charge mode, live checkmark
+    updates via ItemsPropertiesUpdated, battery status shown in the menu.
+  * Window: new primary menu (refresh, diagnostics, shortcuts, docs, report an
+    issue, about).
+  * First Debian/Ubuntu packaging, alongside the existing Fedora/RHEL RPM.
+
+ -- Platform Power contributors <noreply@example.invalid>  Sun, 27 Sep 2026 12:00:00 +0000
+
+platform-power-manager (0.2.0-1) unstable; urgency=medium
+
+  * Initial Debian packaging, matching the Fedora RPM's 0.2.0 feature set.
+
+ -- Platform Power contributors <noreply@example.invalid>  Tue, 22 Sep 2026 12:00:00 +0000

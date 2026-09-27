@@ -128,6 +128,57 @@ sudo dnf install ~/rpmbuild/RPMS/noarch/platform-power-manager-$VERSION*.noarch.
 `dnf` will pull in `python3-gobject`, `gtk4`, `libadwaita`, `polkit`, and
 `libgudev` as runtime dependencies automatically.
 
+## Other distributions
+
+Fedora/RHEL is the primary target, but the app itself has nothing
+Fedora-specific in it (plain Python + GTK4/libadwaita/polkit/systemd/D-Bus),
+so it's packaged for a few others too. Each was built and installed in a
+real container of the target distribution before being committed here, not
+just written by inspection.
+
+### Debian / Ubuntu (.deb)
+
+```bash
+sudo apt install build-essential debhelper devscripts fakeroot
+dpkg-buildpackage -us -uc -b
+sudo apt install ../platform-power-manager_$VERSION-1_all.deb
+```
+
+The prebuilt `.deb` is also attached to the
+[GitHub release](https://github.com/ElMajor76/dell-power-manager-fedora/releases).
+Packaging lives in `debian/` at the repository root (a "native" package,
+`debian/source/format` = `3.0 (native)`).
+
+### Arch Linux (PKGBUILD)
+
+```bash
+cd packaging/archlinux
+makepkg -si
+```
+
+`packaging/archlinux/PKGBUILD` pulls the source from this repo's GitHub
+release tarball rather than the working tree. The daemon and its D-Bus
+service file are installed under `/usr/lib/platform-power-manager/` instead
+of `/usr/libexec/` (not a standard directory on Arch), with the `ExecStart=`
+paths patched at package time to match.
+
+### openSUSE (RPM)
+
+```bash
+cd packaging/opensuse
+sudo zypper install rpm-build python3-devel systemd-rpm-macros desktop-file-utils appstream-glib
+rpmbuild --define "_topdir $HOME/rpmbuild" -bb platform-power-manager.spec
+sudo zypper install ~/rpmbuild/RPMS/noarch/platform-power-manager-$VERSION*.noarch.rpm
+```
+
+Otherwise near-identical to the Fedora spec (same RPM macros throughout),
+except openSUSE splits each GObject-Introspection typelib into its own
+package separate from the runtime library it introspects, so the
+dependency list names the typelibs explicitly
+(`typelib-1_0-{Gtk-4_0,Adw-1,GUdev-1_0,GdkPixbuf-2_0}`) instead of the
+generic `gtk4`/`libadwaita`/`libgudev` capability names that resolve fine
+on Fedora.
+
 ## Running / troubleshooting
 
 The daemon is D-Bus-activated, so you don't need to `systemctl start`
