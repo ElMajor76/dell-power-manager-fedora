@@ -140,6 +140,60 @@ def test_set_charge_thresholds_unknown_or_traversal(monkeypatch, tmp_path):
         backend.set_charge_thresholds("AC", 60, 80)
 
 
+def test_set_charge_thresholds_rejects_out_of_firmware_range(monkeypatch, tmp_path):
+    # Regression test: on machines where dell-wmi-sysman mirrors these
+    # thresholds, the firmware enforces its own (often narrower) min/max
+    # -- e.g. CustomChargeStart >= 50% -- and used to silently revert an
+    # out-of-range kernel-level write instead of the daemon rejecting it
+    # up front. Simulates exactly that with a synthetic 50-95/55-100 range,
+    # independent of whatever the machine actually running this test has.
+    power_root = tmp_path / "power_supply"
+    bat = power_root / "BAT0"
+    bat.mkdir(parents=True)
+    (bat / "type").write_text("Battery\n", encoding="utf-8")
+    (bat / "charge_control_start_threshold").write_text("50", encoding="utf-8")
+    (bat / "charge_control_end_threshold").write_text("100", encoding="utf-8")
+    monkeypatch.setattr(backend.sysfs, "POWER_SUPPLY_ROOT", str(power_root))
+
+    sysman_root = tmp_path / "dell-wmi-sysman"
+    cust_start = sysman_root / "attributes" / "CustomChargeStart"
+    cust_stop = sysman_root / "attributes" / "CustomChargeStop"
+    cust_start.mkdir(parents=True)
+    cust_stop.mkdir(parents=True)
+    (cust_start / "current_value").write_text("50", encoding="utf-8")
+    (cust_start / "min_value").write_text("50", encoding="utf-8")
+    (cust_start / "max_value").write_text("95", encoding="utf-8")
+    (cust_stop / "current_value").write_text("90", encoding="utf-8")
+    (cust_stop / "min_value").write_text("55", encoding="utf-8")
+    (cust_stop / "max_value").write_text("90", encoding="utf-8")
+    monkeypatch.setattr(backend, "find_sysman_root", lambda: str(sysman_root))
+
+    # Below the firmware's own minimum for CustomChargeStart (50): must be
+    # rejected, and *nothing* should be written -- not even the kernel
+    # dell-laptop node, which would otherwise happily accept 40 and then
+    # get silently reverted once the firmware sync (further down in
+    # set_charge_thresholds) refuses the out-of-range value.
+    with pytest.raises(ValueError, match="50 % et 95 %"):
+        backend.set_charge_thresholds("BAT0", 40, 90)
+    assert (bat / "charge_control_start_threshold").read_text(encoding="utf-8") == "50"
+    assert (bat / "charge_control_end_threshold").read_text(encoding="utf-8") == "100"
+    assert (cust_start / "current_value").read_text(encoding="utf-8") == "50"
+
+    # Above the firmware's own maximum for CustomChargeStop (90 in this
+    # fixture, deliberately lower than the generic 0-100 sanity check would
+    # allow) -- exercises the end-threshold branch instead.
+    with pytest.raises(ValueError, match="55 % et 90 %"):
+        backend.set_charge_thresholds("BAT0", 60, 95)
+
+    # Within both the kernel's 0-100 sanity range AND the firmware's
+    # narrower one: must actually apply, to both paths.
+    backend.set_charge_thresholds("BAT0", 60, 90)
+    assert (bat / "charge_control_start_threshold").read_text(encoding="utf-8") == "60"
+    assert (bat / "charge_control_end_threshold").read_text(encoding="utf-8") == "90"
+    assert (cust_start / "current_value").read_text(encoding="utf-8") == "60"
+    assert (cust_stop / "current_value").read_text(encoding="utf-8") == "90"
+
+
 def test_set_platform_profile_validation(monkeypatch, tmp_path):
     profile_path = tmp_path / "platform_profile"
     choices_path = tmp_path / "platform_profile_choices"

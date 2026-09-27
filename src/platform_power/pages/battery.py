@@ -102,10 +102,15 @@ class BatteryPage(Adw.PreferencesPage):
         )
         self.add(self._charge_group)
 
-        self._start_row = Adw.SpinRow.new_with_range(50, 95, 1)
+        # Placeholder range; update_state() sets the real min/max as soon as
+        # the daemon reports them (they depend on the machine's firmware --
+        # see backend._charge_threshold_bounds()), so this initial range is
+        # never actually relied on to reject or accept a value.
+        self._start_row = Adw.SpinRow.new_with_range(0, 100, 1)
         self._start_row.set_title("Démarrer la charge à (%)")
-        self._end_row = Adw.SpinRow.new_with_range(55, 100, 1)
+        self._end_row = Adw.SpinRow.new_with_range(0, 100, 1)
         self._end_row.set_title("Arrêter la charge à (%)")
+        self._end_max = 100
         self._charge_group.add(self._start_row)
         self._charge_group.add(self._end_row)
 
@@ -179,8 +184,18 @@ class BatteryPage(Adw.PreferencesPage):
             self._charge_group.set_visible(supported and is_custom)
 
             if supported:
-                start = battery.get("charge_start_threshold") or 50
-                end = battery.get("charge_end_threshold") or 100
+                start_min = battery.get("charge_start_threshold_min", 0)
+                start_max = battery.get("charge_start_threshold_max", 100)
+                end_min = battery.get("charge_end_threshold_min", 0)
+                end_max = battery.get("charge_end_threshold_max", 100)
+                self._start_row.get_adjustment().set_lower(start_min)
+                self._start_row.get_adjustment().set_upper(start_max)
+                self._end_row.get_adjustment().set_lower(end_min)
+                self._end_row.get_adjustment().set_upper(end_max)
+                self._end_max = end_max
+
+                start = battery.get("charge_start_threshold") or start_min
+                end = battery.get("charge_end_threshold") or end_max
                 self._start_row.set_value(start)
                 self._end_row.set_value(end)
         finally:
@@ -204,6 +219,6 @@ class BatteryPage(Adw.PreferencesPage):
         start = int(self._start_row.get_value())
         end = int(self._end_row.get_value())
         if start >= end:
-            end = min(100, start + 5)
+            end = min(self._end_max, start + 5)
             self._end_row.set_value(end)
         self._on_set_thresholds(self._battery_name, start, end)

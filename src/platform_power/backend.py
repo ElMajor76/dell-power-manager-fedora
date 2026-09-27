@@ -317,6 +317,8 @@ def read_battery(name: str) -> dict:
             raw_choices = sysfs.read_str(f"{mode_path}/possible_values") or ""
             charge_mode_choices = [c for c in raw_choices.split(";") if c]
 
+    start_min, start_max, end_min, end_max = _charge_threshold_bounds()
+
     return {
         "name": name,
         "model_name": sysfs.read_str(f"{base}/model_name"),
@@ -330,9 +332,41 @@ def read_battery(name: str) -> dict:
         "charge_threshold_supported": start_threshold is not None and end_threshold is not None,
         "charge_start_threshold": start_threshold,
         "charge_end_threshold": end_threshold,
+        "charge_start_threshold_min": start_min,
+        "charge_start_threshold_max": start_max,
+        "charge_end_threshold_min": end_min,
+        "charge_end_threshold_max": end_max,
         "charge_mode": charge_mode,
         "charge_mode_choices": charge_mode_choices,
     }
+
+
+def _charge_threshold_bounds() -> tuple[int, int, int, int]:
+    """Return (start_min, start_max, end_min, end_max) for custom charge
+    thresholds. On machines where dell-wmi-sysman mirrors these as
+    CustomChargeStart/CustomChargeStop, the *firmware* enforces its own,
+    often narrower, range (commonly e.g. 50-95 / 55-100) and will
+    silently refuse/revert a value outside it even though the kernel's own
+    charge_control_{start,end}_threshold nodes will happily accept 0-100.
+    Falls back to the full 0-100 range when there's no dell-wmi-sysman (or
+    it doesn't expose these two attributes), i.e. only the kernel driver's
+    own range applies.
+    """
+    root = find_sysman_root()
+    if not root:
+        return 0, 100, 0, 100
+
+    def bounds(attr: str, default_min: int, default_max: int) -> tuple[int, int]:
+        base = f"{root}/attributes/{attr}"
+        if not sysfs.exists(f"{base}/current_value"):
+            return default_min, default_max
+        lo = sysfs.read_int(f"{base}/min_value")
+        hi = sysfs.read_int(f"{base}/max_value")
+        return (lo if lo is not None else default_min, hi if hi is not None else default_max)
+
+    start_min, start_max = bounds("CustomChargeStart", 0, 100)
+    end_min, end_max = bounds("CustomChargeStop", 0, 100)
+    return start_min, start_max, end_min, end_max
 
 
 def set_battery_charge_mode(mode: str) -> None:
@@ -363,6 +397,24 @@ def set_charge_thresholds(name: str, start: int, end: int) -> None:
     end_path = f"{base}/charge_control_end_threshold"
     if not (sysfs.exists(start_path) and sysfs.exists(end_path)):
         raise FileNotFoundError(f"{name} does not expose charge thresholds on this kernel")
+
+    # On machines where dell-wmi-sysman mirrors these thresholds as
+    # CustomChargeStart/CustomChargeStop, the firmware enforces its own,
+    # often narrower, min/max (e.g. start >= 50%) and will silently
+    # refuse/revert a value outside it: the kernel write below would
+    # "succeed" (no exception), then the sysfs node gets resynced back to
+    # whatever the firmware actually accepted a moment later, so the
+    # caller never finds out the requested value didn't stick. Reject it
+    # up front instead, before writing anything.
+    start_min, start_max, end_min, end_max = _charge_threshold_bounds()
+    if not (start_min <= start <= start_max):
+        raise ValueError(
+            f"Le seuil de début doit être compris entre {start_min} % et {start_max} % sur ce matériel."
+        )
+    if not (end_min <= end <= end_max):
+        raise ValueError(
+            f"Le seuil de fin doit être compris entre {end_min} % et {end_max} % sur ce matériel."
+        )
 
     # Lower the end threshold first only when it's safe to do so (avoids a
     # transient state where start > end gets rejected by the driver).
