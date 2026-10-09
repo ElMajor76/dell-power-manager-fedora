@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 # Fill in sha256sums once the v$pkgver tag exists on GitHub:
 #   cd packaging/archlinux && ./update-sha256.sh
 set -eu
