@@ -17,7 +17,7 @@ jobs:
             python3 python3-gi python3-pytest \
             gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gudev-1.0 gir1.2-gdkpixbuf-2.0 \
             dbus gettext desktop-file-utils appstream \
-            debhelper dh-python devscripts fakeroot lintian
+            build-essential debhelper dh-python devscripts fakeroot lintian
 
       - name: Unit tests (system Python, private session bus)
         run: PYTHONPATH=src dbus-run-session -- /usr/bin/python3 -m pytest tests -q
