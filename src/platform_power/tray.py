@@ -197,6 +197,7 @@ class TrayIndicator:
         self._sni_reg_id: int | None = None
         self._menu_reg_id: int | None = None
         self._watcher_sub_id: int | None = None
+        self._watcher_name_id: int | None = None
 
         self._active_profile: str = "balanced"
         self._choices: list[str] = ["cool", "quiet", "balanced", "performance"]
@@ -251,7 +252,23 @@ class TrayIndicator:
             lambda *_: self._register_with_watcher(),
         )
 
-        self._register_with_watcher()
+        # Also follow the watcher's *name* appearing/vanishing. On a desktop
+        # session start (notably Ubuntu's GNOME, where the AppIndicator
+        # extension only claims org.kde.StatusNotifierWatcher once
+        # gnome-shell has loaded it) the autostarted app routinely comes up
+        # before any watcher exists, so the first registration fails; the
+        # same applies to a shell/Plasma restart. Registering when the name
+        # appears makes the tray icon show up without restarting the app.
+        self._watcher_name_id = Gio.bus_watch_name_on_connection(
+            self._bus,
+            "org.kde.StatusNotifierWatcher",
+            Gio.BusNameWatcherFlags.NONE,
+            lambda *_: self._register_with_watcher(),
+            lambda *_: self._on_watcher_vanished(),
+        )
+
+    def _on_watcher_vanished(self) -> None:
+        self._is_available = False
 
     def _register_with_watcher(self) -> None:
         if self._bus is None:
@@ -760,6 +777,9 @@ class TrayIndicator:
             if self._watcher_sub_id:
                 self._bus.signal_unsubscribe(self._watcher_sub_id)
                 self._watcher_sub_id = None
+            if self._watcher_name_id:
+                Gio.bus_unwatch_name(self._watcher_name_id)
+                self._watcher_name_id = None
             if self._sni_reg_id:
                 self._bus.unregister_object(self._sni_reg_id)
                 self._sni_reg_id = None

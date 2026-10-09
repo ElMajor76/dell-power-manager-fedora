@@ -1,0 +1,30 @@
+.TH PLATFORM-POWER 1 "October 2026" "platform-power-manager" "User Commands"
+.SH NAME
+platform-power \- Dell Power Manager: thermal profile, battery charging and BIOS power settings
+.SH SYNOPSIS
+.B platform-power
+[\fB\-m\fR|\fB\-\-minimized\fR] [\fIGTK/GApplication options\fR]
+.SH DESCRIPTION
+GTK4/libadwaita front-end for the \fBplatform-power-daemon\fR D-Bus service.
+It shows and changes the ACPI platform profile, the battery charge
+thresholds and (where the \fBdell-wmi-sysman\fR kernel driver exposes them)
+Dell BIOS power settings, and provides a StatusNotifierItem tray icon.
+.PP
+The program never writes to sysfs itself: every change is sent to the
+root-owned daemon over the system bus and authorized through polkit.
+.SH OPTIONS
+.TP
+.BR \-m ", " \-\-minimized
+Start hidden in the notification area (used by the autostart entry).
+.SH FILES
+.TP
+.I /etc/xdg/autostart/io.github.nplacide95.PlatformPower.desktop
+Autostart entry (starts the tray icon at login). Override or disable it
+per user by copying it to \fI~/.config/autostart/\fR with
+\fBHidden=true\fR.
+.SH SEE ALSO
+.BR busctl (1),
+.BR journalctl (1),
+.BR pkaction (1)
+.PP
+Project documentation: /usr/share/doc/platform-power-manager/

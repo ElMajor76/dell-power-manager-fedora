@@ -19,7 +19,7 @@ APP_ID = "io.github.nplacide95.PlatformPower"
 # Keep in sync with Version: in platform-power-manager.spec and the
 # <release version="..."> in data/*.metainfo.xml -- there is no packaging
 # step that derives this from either of those, it's just repeated by hand.
-APP_VERSION = "0.4.0"
+APP_VERSION = "0.5.0"
 
 log = logging.getLogger("platform-power")
 
@@ -132,8 +132,10 @@ class PlatformPowerApp(Adw.Application):
         self.add_action(report_issue_action)
 
     def _on_close_shortcut(self) -> None:
+        # Goes through the window's close-request handler so the "no tray
+        # available -> really quit" rule applies to Ctrl+Q/W too.
         if self._window is not None:
-            self._window.set_visible(False)
+            self._window.close()
 
     def _show_about(self) -> None:
         about = Adw.AboutDialog(

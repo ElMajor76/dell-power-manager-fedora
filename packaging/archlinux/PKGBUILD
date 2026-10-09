@@ -1,6 +1,6 @@
 # Maintainer: Platform Power contributors <noreply@example.invalid>
 pkgname=platform-power-manager
-pkgver=0.4.0
+pkgver=0.5.0
 pkgrel=1
 pkgdesc="Thermal profile, battery charging and BIOS power settings for Dell laptops (GTK4/libadwaita)"
 arch=('any')
@@ -8,9 +8,12 @@ url="https://github.com/nplacide95/dell-power-manager-fedora"
 license=('MIT')
 depends=('python' 'python-gobject' 'gtk4' 'libadwaita' 'polkit' 'libgudev' 'dbus')
 makedepends=('desktop-file-utils' 'appstream-glib' 'python-pytest' 'gettext')
-backup=('etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf')
+optdepends=('gnome-shell-extension-appindicator: tray icon on GNOME'
+            'power-profiles-daemon: GNOME/KDE power mode switcher sharing the same platform_profile')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/ElMajor76/dell-power-manager-fedora/archive/refs/tags/v$pkgver.tar.gz")
-sha256sums=('c9259e829df41a51b30945dead51e12b613df66cdbc90c131c6dd9577dd254d4')
+# 'SKIP' until the v0.5.0 tag exists on GitHub; then run ./update-sha256.sh
+# (it downloads that tarball and writes the real checksum here).
+sha256sums=('SKIP')
 
 _srcdir="dell-power-manager-fedora-$pkgver"
 
@@ -57,8 +60,10 @@ package() {
     "$pkgdir/usr/share/dbus-1/system-services/io.github.nplacide95.PlatformPower.Daemon1.service"
   sed -i 's#/usr/libexec/platform-power-daemon#/usr/lib/platform-power-manager/platform-power-daemon#' \
     "$pkgdir/usr/share/dbus-1/system-services/io.github.nplacide95.PlatformPower.Daemon1.service"
+  # System-bus policy belongs in /usr/share/dbus-1/system.d (/etc is for local
+  # overrides), same as the Debian/Ubuntu package.
   install -Dm644 data/dbus/io.github.nplacide95.PlatformPower.Daemon1.conf \
-    "$pkgdir/etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf"
+    "$pkgdir/usr/share/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf"
 
   install -Dm644 data/polkit/io.github.nplacide95.PlatformPower.policy \
     "$pkgdir/usr/share/polkit-1/actions/io.github.nplacide95.PlatformPower.policy"
@@ -80,6 +85,8 @@ package() {
     install -Dm644 "data/icons/io.github.nplacide95.PlatformPower_${sz}.png" \
       "$pkgdir/usr/share/icons/hicolor/${sz}x${sz}/apps/io.github.nplacide95.PlatformPower.png"
   done
+
+  install -Dm644 debian/platform-power.1 "$pkgdir/usr/share/man/man1/platform-power.1"
 
   install -Dm644 LICENSE "$pkgdir/usr/share/licenses/$pkgname/LICENSE"
 

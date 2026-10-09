@@ -7,6 +7,6 @@ Comment[fr]=Gérer le profil thermique, la charge de la batterie et les réglage
 Exec=platform-power
 Icon=io.github.nplacide95.PlatformPower
 Terminal=false
-Categories=Settings;HardwareSettings;System;
+Categories=Settings;HardwareSettings;
 StartupNotify=true
 Keywords=dell;power;battery;thermal;peak shift;charge;bios;

@@ -1,8 +1,13 @@
-# Dell Power Manager for Fedora Linux based laptops
+# Dell Power Manager for Linux (Fedora and Ubuntu) Dell laptops
+
+> **Ubuntu 24.04 LTS or newer is supported** since 0.5.0 — see
+> [`docs/UBUNTU.md`](docs/UBUNTU.md) (install, hardware checks, troubleshooting,
+> what has been tested). Every change to the project is tracked in
+> [`CHANGELOG.md`](CHANGELOG.md).
 
 GTK4/libadwaita app + privileged D-Bus daemon that brings the same
 *category* of settings as Dell Command | Power Manager (Windows) to
-Fedora GNOME/KDE: thermal/performance profile, battery charge-threshold
+Fedora/Ubuntu GNOME/KDE: thermal/performance profile, battery charge-threshold
 management, and — where the firmware supports it — BIOS-level extras
 like Peak Shift, scheduled/advanced battery charging, and USB-C
 PowerShare. Also includes a system tray indicator with quick profile
@@ -138,10 +143,21 @@ just written by inspection.
 
 ### Debian / Ubuntu (.deb)
 
+Ubuntu 24.04 LTS or newer (needs libadwaita ≥ 1.5 and GTK ≥ 4.10). Full
+guide: [`docs/UBUNTU.md`](docs/UBUNTU.md).
+
 ```bash
-sudo apt install build-essential debhelper devscripts fakeroot
+sudo apt install ./packages/platform-power-manager_0.5.0-1_all.deb
+```
+
+Building from source (also runs the test suite):
+
+```bash
+sudo apt install build-essential debhelper dh-python devscripts fakeroot \
+    gettext dbus python3-gi python3-pytest gir1.2-gtk-4.0 gir1.2-adw-1 \
+    gir1.2-gudev-1.0 gir1.2-gdkpixbuf-2.0
 dpkg-buildpackage -us -uc -b
-sudo apt install ../platform-power-manager_$VERSION-1_all.deb
+sudo apt install ../platform-power-manager_*_all.deb
 ```
 
 The prebuilt `.deb` is also attached to the
@@ -156,7 +172,9 @@ cd packaging/archlinux
 makepkg -si
 ```
 
-`packaging/archlinux/PKGBUILD` pulls the source from this repo's GitHub
+`packaging/archlinux/PKGBUILD` (0.5.0; checksum is `SKIP` until the `v0.5.0`
+tag exists, then run `packaging/archlinux/update-sha256.sh`; not yet
+build-tested on a real Arch system) pulls the source from this repo's GitHub
 release tarball rather than the working tree. The daemon and its D-Bus
 service file are installed under `/usr/lib/platform-power-manager/` instead
 of `/usr/libexec/` (not a standard directory on Arch), with the `ExecStart=`
@@ -214,6 +232,19 @@ platform-power-daemon` and `ausearch -m avc -ts recent` if so.
 
 Tagged releases (with pre-built RPMs attached) are published on the
 [GitHub Releases page](https://github.com/ElMajor76/dell-power-manager-fedora/releases).
-See `platform-power-manager.spec`'s `%changelog` for the detailed,
-version-by-version history.
+See [`CHANGELOG.md`](CHANGELOG.md) for the complete, version-by-version
+history (the packaging-specific logs are `debian/changelog` and the `%changelog`
+of the two RPM specs).
+
+## Tests
+
+```bash
+sudo apt install python3-gi python3-pytest gir1.2-gtk-4.0 gir1.2-adw-1 \
+    gir1.2-gudev-1.0 gir1.2-gdkpixbuf-2.0 dbus xvfb   # Ubuntu/Debian
+PYTHONPATH=src dbus-run-session -- /usr/bin/python3 -m pytest tests -q
+PYTHONPATH=src dbus-run-session -- xvfb-run -a /usr/bin/python3 tests/smoke_gui.py
+```
+
+The same checks (plus `.deb` build and `lintian`) run in CI on Ubuntu 24.04
+(`.github/workflows/ci.yml`).
 

@@ -2,22 +2,33 @@ Source: platform-power-manager
 Section: admin
 Priority: optional
 Maintainer: Platform Power contributors <noreply@example.invalid>
-Build-Depends: debhelper-compat (= 13), gettext
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               gettext,
+               dbus,
+               python3,
+               python3-gi <!nocheck>,
+               python3-pytest <!nocheck>,
+               gir1.2-gtk-4.0 <!nocheck>,
+               gir1.2-adw-1 (>= 1.5) <!nocheck>,
+               gir1.2-gudev-1.0 <!nocheck>,
+               gir1.2-gdkpixbuf-2.0 <!nocheck>
 Standards-Version: 4.6.2
-Homepage: https://github.com/nplacide95/dell-power-manager-fedora
+Homepage: https://github.com/ElMajor76/dell-power-manager-fedora
 Rules-Requires-Root: no
 
 Package: platform-power-manager
 Architecture: all
 Depends: ${misc:Depends},
-         python3,
+         ${python3:Depends},
          python3-gi,
-         gir1.2-gtk-4.0,
-         gir1.2-adw-1,
+         gir1.2-gtk-4.0 (>= 4.10),
+         gir1.2-adw-1 (>= 1.5),
          gir1.2-gudev-1.0,
          gir1.2-gdkpixbuf-2.0,
          polkitd | policykit-1,
          dbus-daemon
+Suggests: gnome-shell-extension-appindicator
 Description: Thermal profile, battery charging and BIOS power settings
  Platform Power is a GTK4/libadwaita application and privileged D-Bus
  daemon that expose, on Dell laptops running Linux, the same category

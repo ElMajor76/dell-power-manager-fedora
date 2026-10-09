@@ -16,7 +16,7 @@ from .pages.thermal import ThermalPage, get_thermal_icon
 
 # Keep in sync with app.APP_VERSION (duplicated rather than imported: app.py
 # imports this module, so importing back from app would be circular).
-_VERSION = "0.4.0"
+_VERSION = "0.5.0"
 
 _DAEMON_UNIT = "platform-power-daemon.service"
 
@@ -41,7 +41,7 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
         if self._client is not None:
             try:
                 state = self._client.get_state()
-                self._content_bin.set_child(self._stack)
+                self._show_content()
                 self._client.watch_state_changed(self._apply_state)
                 self._apply_state(state)
             except Exception as exc:
@@ -54,6 +54,15 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
             if self._client is not None:
                 self._client.close()
             return False
+        # Without a StatusNotifier host (stock GNOME without the AppIndicator
+        # extension, some minimal sessions) a hidden window would leave an
+        # invisible background process with no way to bring it back, so
+        # closing really quits in that case.
+        app = self.get_application()
+        if app is not None and not getattr(app, "has_tray", True):
+            self._quitting = True
+            app.quit_application()
+            return True
         self.set_visible(False)
         return True
 
@@ -140,9 +149,15 @@ class PlatformPowerWindow(Adw.ApplicationWindow):
             self._show_unavailable(str(exc))
             return
 
-        self._content_bin.set_child(self._stack)
+        self._show_content()
         self._client.watch_state_changed(self._apply_state)
         self._apply_state(state)
+
+    def _show_content(self) -> None:
+        # The stack is already the bin's child on first build; re-setting the
+        # same child makes libadwaita log an Adwaita-CRITICAL assertion.
+        if self._content_bin.get_child() is not self._stack:
+            self._content_bin.set_child(self._stack)
 
     def _show_unavailable(self, detail: str) -> None:
         self._error_page.set_description(

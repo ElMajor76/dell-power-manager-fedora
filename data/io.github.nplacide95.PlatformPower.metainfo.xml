@@ -33,6 +33,11 @@
   <content_rating type="oars-1.1"/>
 
   <releases>
+    <release version="0.5.0" date="2026-10-09">
+      <description>
+        <p>Ubuntu/Debian integration: the tray icon now appears even when the app starts before the desktop's tray host (GNOME AppIndicator extension), closing the window quits when no tray exists, the Debian package follows Debian/Ubuntu policy (D-Bus policy under /usr/share, man page, test suite run at build time) and declares the libadwaita 1.5 / GTK 4.10 requirement.</p>
+      </description>
+    </release>
     <release version="0.4.0" date="2026-09-27">
       <description>
         <p>Translate the application to English so the source is readable by any contributor; the interface keeps displaying in French automatically on a French system via a proper gettext translation. Fix three menu section titles that were silently broken by an unescaped ampersand.</p>

@@ -3,14 +3,19 @@
 PKG := debian/platform-power-manager
 
 %:
-	dh $@
+	dh $@ --with python3
 
 override_dh_auto_build:
 	# Pure Python + data files; nothing to compile.
 
 override_dh_auto_test:
-	# The project's own pytest suite (tests/) isn't wired in here; run it
-	# manually with PYTHONPATH=src python3 -m pytest tests/ before building.
+	# The tray tests need a session bus; dbus-run-session provides a
+	# private one so the build never touches the builder's real session.
+	# The Python-version-independent system interpreter is used on purpose
+	# (python3-gi is only built for it).
+ifeq (,$(filter nocheck,$(DEB_BUILD_OPTIONS)))
+	PYTHONPATH=src dbus-run-session -- /usr/bin/python3 -m pytest tests -q -p no:cacheprovider
+endif
 
 override_dh_auto_install:
 	install -d $(PKG)/usr/lib/python3/dist-packages/platform_power
@@ -22,8 +27,10 @@ override_dh_auto_install:
 
 	install -Dm644 data/dbus/io.github.nplacide95.PlatformPower.Daemon1.service \
 	    $(PKG)/usr/share/dbus-1/system-services/io.github.nplacide95.PlatformPower.Daemon1.service
+	# Packages must ship system-bus policy under /usr/share/dbus-1/system.d
+	# (/etc/dbus-1 is reserved for local overrides on Debian/Ubuntu).
 	install -Dm644 data/dbus/io.github.nplacide95.PlatformPower.Daemon1.conf \
-	    $(PKG)/etc/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf
+	    $(PKG)/usr/share/dbus-1/system.d/io.github.nplacide95.PlatformPower.Daemon1.conf
 
 	install -Dm644 data/polkit/io.github.nplacide95.PlatformPower.policy \
 	    $(PKG)/usr/share/polkit-1/actions/io.github.nplacide95.PlatformPower.policy
@@ -48,9 +55,15 @@ override_dh_auto_install:
 
 	# Translations. English is the in-source language; po/fr.po is the
 	# only translation for now.
-	msgfmt -c po/fr.po -o po/fr.mo
-	install -Dm644 po/fr.mo \
+	# Compiled into debian/ (not po/) so the source tree stays clean.
+	install -d debian/tmp-locale
+	msgfmt -c po/fr.po -o debian/tmp-locale/fr.mo
+	install -Dm644 debian/tmp-locale/fr.mo \
 	    $(PKG)/usr/share/locale/fr/LC_MESSAGES/platform-power-manager.mo
+
+override_dh_auto_clean:
+	rm -rf debian/tmp-locale po/fr.mo .pytest_cache
+	find . -name '__pycache__' -type d -prune -exec rm -rf {} +
 
 override_dh_installsystemd:
 	# The unit is named platform-power-daemon.service (matching
