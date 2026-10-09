@@ -77,12 +77,23 @@ tray/fenêtre ci-dessous qui profitent à toutes les distributions.
   nettoyage ; un test précédent laissait des objets D-Bus exportés qui
   faisaient échouer le test suivant.
 - Version portée à 0.5.0 (`app.py`, `window.py`, metainfo, spec Fedora, spec
-  openSUSE, `debian/changelog`).
+  openSUSE, `debian/changelog`, `PKGBUILD`).
+
+- **Paquet Arch Linux** (`packaging/archlinux/PKGBUILD`) : version 0.5.0 ;
+  politique D-Bus dans `/usr/share/dbus-1/system.d/` (plus de fichier `/etc`
+  ni de `backup=`) ; page de manuel installée ; `optdepends`
+  (`gnome-shell-extension-appindicator`, `power-profiles-daemon`) ; nouveau
+  script `update-sha256.sh` qui calcule le checksum du tarball du tag.
+  `check()` et `package()` ont été exécutés sur l'arbre du dépôt (29 tests OK,
+  tous les fichiers installés présents, `ExecStart` réécrit vers
+  `/usr/lib/platform-power-manager/`), mais **pas dans une vraie
+  installation Arch** (miroirs Arch inaccessibles depuis l'environnement de
+  développement) ; `makepkg` et `namcap` restent à lancer sur Arch.
 
 ### À faire / non traité
-- `packaging/archlinux/PKGBUILD` reste en 0.4.0 : il télécharge le tarball
-  d'un tag GitHub et son `sha256sum` ne peut être calculé qu'après la création
-  du tag `v0.5.0`.
+- `PKGBUILD` : `sha256sums=('SKIP')` tant que le tag `v0.5.0` n'existe pas.
+  Après sa création : `cd packaging/archlinux && ./update-sha256.sh`, puis
+  committer.
 - Pas de test sur matériel Dell réel sous Ubuntu : la couche sysfs est testée
   en simulation et le démon a été validé sur un vrai bus système Ubuntu 24.04
   sans matériel (voir `docs/UBUNTU.md`, section « Ce qui a été testé »).

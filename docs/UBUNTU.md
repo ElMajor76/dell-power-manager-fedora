@@ -108,7 +108,7 @@ systemd ni matériel Dell).
 
 | Test | Résultat |
 |---|---|
-| Suite pytest (29 tests) sur l'interpréteur système, bus de session privé | OK |
+| Suite pytest (30 tests) sur l'interpréteur système, bus de session privé | OK |
 | `dpkg-buildpackage -b` (tests exécutés pendant la construction) | OK |
 | `lintian` sur le `.deb` | 0 erreur, 0 avertissement |
 | `dpkg -i` du paquet ; politique polkit chargée (`pkaction` : 3 actions) | OK |

@@ -28,8 +28,17 @@ def test_versions_are_consistent():
     fedora = _first(r"^Version:\s+(\S+)", _read("platform-power-manager.spec"))
     suse = _first(r"^Version:\s+(\S+)", _read("packaging", "opensuse", "platform-power-manager.spec"))
     debian = _first(r"^platform-power-manager \(([^-)]+)-\d+\)", _read("debian", "changelog"))
+    arch = _first(r"^pkgver=(\S+)", _read("packaging", "archlinux", "PKGBUILD"))
     changelog = _first(r"^## \[([^\]]+)\]", _read("CHANGELOG.md"))
-    assert {app, window, metainfo, fedora, suse, debian, changelog} == {app}
+    assert {app, window, metainfo, fedora, suse, debian, arch, changelog} == {app}
+
+
+def test_arch_pkgbuild_installs_files_that_exist():
+    pkgbuild = _read("packaging", "archlinux", "PKGBUILD")
+    for rel in re.findall(r"install -Dm\d+ ((?:data|bin|debian)/[^\s\\]+)", pkgbuild):
+        assert os.path.exists(os.path.join(ROOT, rel)), rel
+    assert "/usr/share/dbus-1/system.d/" in pkgbuild
+    assert "/etc/dbus-1" not in pkgbuild
 
 
 def test_debian_unit_is_the_shared_unit():
