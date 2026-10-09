@@ -37,6 +37,10 @@ tray/fenêtre ci-dessous qui profitent à toutes les distributions.
 - Le paquet Debian exécute désormais la suite pytest pendant la construction
   (`dh_auto_test`, ignorée avec `DEB_BUILD_OPTIONS=nocheck`).
 
+- Workflow GitHub Actions `.github/workflows/release.yml` (déclenchement
+  manuel) : construit le `.deb`, crée le tag `v<version>` et la release GitHub
+  avec le `.deb` et son `.sha256` en pièces jointes.
+
 ### Modifié
 - **Tray** : l'application s'enregistre auprès du `StatusNotifierWatcher` dès
   que son nom apparaît sur le bus (et se marque indisponible s'il disparaît).
