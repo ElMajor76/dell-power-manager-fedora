@@ -1,3 +1,17 @@
+platform-power-manager (0.5.0-1) unstable; urgency=medium
+
+  * Ubuntu/Debian integration release (see CHANGELOG.md for the full list).
+  * Packaging: D-Bus system policy moved to /usr/share/dbus-1/system.d
+    (was /etc/dbus-1), man page added, byte-compilation handled by
+    dh_python3, pytest suite now runs during the build.
+  * Depends: gir1.2-adw-1 (>= 1.5) and gir1.2-gtk-4.0 (>= 4.10), i.e.
+    Ubuntu 24.04 LTS or newer (Adw.AboutDialog / Adw.Dialog are required).
+  * Tray: register with the StatusNotifierWatcher as soon as it appears
+    (fixes a missing icon when autostart wins the race against GNOME's
+    AppIndicator extension) and quit on window close when no tray exists.
+
+ -- Platform Power contributors <noreply@example.invalid>  Fri, 09 Oct 2026 12:00:00 +0000
+
 platform-power-manager (0.4.0-1) unstable; urgency=medium
 
   * i18n: source code UI strings are now in English (readable by any

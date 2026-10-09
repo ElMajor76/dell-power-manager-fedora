@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test-and-package:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            python3 python3-gi python3-pytest \
+            gir1.2-gtk-4.0 gir1.2-adw-1 gir1.2-gudev-1.0 gir1.2-gdkpixbuf-2.0 \
+            dbus gettext desktop-file-utils appstream \
+            debhelper dh-python devscripts fakeroot lintian
+
+      - name: Unit tests (system Python, private session bus)
+        run: PYTHONPATH=src dbus-run-session -- /usr/bin/python3 -m pytest tests -q
+
+      - name: GUI smoke test (virtual display, no daemon, no tray host)
+        run: |
+          sudo apt-get install -y --no-install-recommends xvfb
+          PYTHONPATH=src dbus-run-session -- xvfb-run -a /usr/bin/python3 tests/smoke_gui.py
+
+      - name: Validate desktop files and AppStream metadata
+        run: |
+          desktop-file-validate data/io.github.nplacide95.PlatformPower.desktop
+          desktop-file-validate data/io.github.nplacide95.PlatformPower.autostart.desktop
+          appstreamcli validate --no-net data/io.github.nplacide95.PlatformPower.metainfo.xml
+
+      - name: Build the .deb
+        run: dpkg-buildpackage -us -uc -b
+
+      - name: Lintian
+        run: lintian --fail-on error ../platform-power-manager_*_all.deb

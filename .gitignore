@@ -4,3 +4,16 @@ __pycache__/
 *.tar.gz
 *.rpm
 !packages/*.rpm
+
+# Debian build artifacts
+debian/.debhelper/
+debian/debhelper-build-stamp
+debian/files
+debian/*.debhelper
+debian/*.debhelper.log
+debian/*.substvars
+debian/platform-power-manager/
+debian/tmp-locale/
+.pytest_cache/
+*.deb
+!packages/*.deb

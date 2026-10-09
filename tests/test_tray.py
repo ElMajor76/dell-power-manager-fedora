@@ -25,7 +25,12 @@ def tray():
         on_set_profile=lambda p: None,
         on_quit=lambda: None,
     )
+    real_bus = indicator._bus
     yield indicator
+    # Some tests swap in a fake bus; restore the real one so destroy()
+    # actually unregisters the exported objects (otherwise they leak into
+    # the next test and re-exporting the same path fails).
+    indicator._bus = real_bus
     indicator.destroy()
 
 
@@ -200,3 +205,58 @@ def test_tray_checkmark_updates_via_items_properties_updated(tray):
     )
     performance_child = next(c for c in profile_children if c[0] == ID_PROFILE_BASE + 3)
     assert performance_child[1]["toggle-state"] == 1
+
+
+_WATCHER_XML = """
+<node>
+  <interface name="org.kde.StatusNotifierWatcher">
+    <method name="RegisterStatusNotifierItem">
+      <arg type="s" direction="in" name="service"/>
+    </method>
+  </interface>
+</node>
+"""
+
+
+def _iterate_until(predicate, timeout_s=5.0):
+    ctx = GLib.MainContext.default()
+    deadline = GLib.get_monotonic_time() + int(timeout_s * 1_000_000)
+    while not predicate() and GLib.get_monotonic_time() < deadline:
+        ctx.iteration(False)
+    return predicate()
+
+
+def test_tray_registers_when_watcher_appears_late():
+    """Autostart race (e.g. Ubuntu's GNOME AppIndicator extension claiming
+    the watcher name after the app started): the tray must register itself
+    as soon as the watcher name shows up, and drop back to unavailable when
+    it vanishes."""
+    indicator = TrayIndicator(on_open=lambda: None, on_set_profile=lambda p: None)
+    try:
+        assert not indicator.is_available  # no watcher on the bus yet
+
+        registered: list[str] = []
+        node = Gio.DBusNodeInfo.new_for_xml(_WATCHER_XML)
+
+        def on_bus_acquired(conn, name):
+            def handler(conn, sender, path, iface, method, params, invocation):
+                registered.append(params.unpack()[0])
+                invocation.return_value(None)
+
+            conn.register_object("/StatusNotifierWatcher", node.interfaces[0], handler, None, None)
+
+        owner_id = Gio.bus_own_name(
+            Gio.BusType.SESSION,
+            "org.kde.StatusNotifierWatcher",
+            Gio.BusNameOwnerFlags.NONE,
+            on_bus_acquired,
+            None,
+            None,
+        )
+        assert _iterate_until(lambda: indicator.is_available)
+        assert registered == [SNI_PATH]
+
+        Gio.bus_unown_name(owner_id)
+        assert _iterate_until(lambda: not indicator.is_available)
+    finally:
+        indicator.destroy()

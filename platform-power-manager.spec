@@ -1,5 +1,5 @@
 Name:           platform-power-manager
-Version:        0.4.0
+Version:        0.5.0
 Release:        1%{?dist}
 Summary:        Thermal profile, battery charging and BIOS power settings, GNOME/KDE GUI
 
@@ -147,6 +147,17 @@ gtk-update-icon-cache %{_datadir}/icons/hicolor &>/dev/null || :
 %{_metainfodir}/io.github.nplacide95.PlatformPower.metainfo.xml
 
 %changelog
+* Fri Oct 09 2026 Platform Power packaging <noreply@example.invalid> - 0.5.0-1
+- Tray: register with the StatusNotifierWatcher as soon as its D-Bus name
+  appears (fixes a missing tray icon when autostart wins the race against
+  the desktop shell's tray host) and mark the tray unavailable when it
+  vanishes.
+- Window: closing the window really quits when no tray host exists,
+  instead of leaving an invisible background process.
+- Tests: new tray regression test, version-consistency test; CI workflow
+  on Ubuntu 24.04. Ubuntu/Debian support documented in docs/UBUNTU.md.
+  See CHANGELOG.md for the full list.
+
 * Sun Sep 27 2026 Platform Power packaging <noreply@example.invalid> - 0.4.0-1
 - i18n: the source code's UI strings are now in English (readable by any
   contributor); French is preserved as a full gettext translation
