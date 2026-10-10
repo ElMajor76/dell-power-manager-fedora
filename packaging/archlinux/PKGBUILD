@@ -11,9 +11,9 @@ makedepends=('desktop-file-utils' 'appstream-glib' 'python-pytest' 'gettext')
 optdepends=('gnome-shell-extension-appindicator: tray icon on GNOME'
             'power-profiles-daemon: GNOME/KDE power mode switcher sharing the same platform_profile')
 source=("$pkgname-$pkgver.tar.gz::https://github.com/ElMajor76/dell-power-manager-fedora/archive/refs/tags/v$pkgver.tar.gz")
-# 'SKIP' until the v0.5.0 tag exists on GitHub; then run ./update-sha256.sh
-# (it downloads that tarball and writes the real checksum here).
-sha256sums=('SKIP')
+# Checksum of the v$pkgver tag tarball; after bumping pkgver and tagging,
+# run ./update-sha256.sh to refresh it.
+sha256sums=('53a5733e897e4583e18cc963f761fef39e43f5b8326547d7eff480258a8ccf2a')
 
 _srcdir="dell-power-manager-fedora-$pkgver"
 

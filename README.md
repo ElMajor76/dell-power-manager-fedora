@@ -172,8 +172,8 @@ cd packaging/archlinux
 makepkg -si
 ```
 
-`packaging/archlinux/PKGBUILD` (0.5.0; checksum is `SKIP` until the `v0.5.0`
-tag exists, then run `packaging/archlinux/update-sha256.sh`; not yet
+`packaging/archlinux/PKGBUILD` (0.5.0; refresh the checksum with
+`packaging/archlinux/update-sha256.sh` after each new tag; not yet
 build-tested on a real Arch system) pulls the source from this repo's GitHub
 release tarball rather than the working tree. The daemon and its D-Bus
 service file are installed under `/usr/lib/platform-power-manager/` instead
