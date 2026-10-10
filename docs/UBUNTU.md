@@ -22,9 +22,10 @@ StatusNotifierItem ; Ubuntu Desktop (GNOME) l'affiche grâce à l'extension
 
 ## Installation
 
-Depuis un `.deb` pré-construit (dossier `packages/` ou page Releases) :
+Un seul fichier à installer — le `.deb` (dossier `packages/` ou page Releases) :
 
 ```bash
+wget https://github.com/ElMajor76/dell-power-manager-fedora/raw/main/packages/platform-power-manager_0.5.0-1_all.deb
 sudo apt install ./platform-power-manager_0.5.0-1_all.deb
 ```
 
