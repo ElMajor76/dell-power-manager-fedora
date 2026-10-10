@@ -94,10 +94,11 @@ tray/fenêtre ci-dessous qui profitent à toutes les distributions.
   installation Arch** (miroirs Arch inaccessibles depuis l'environnement de
   développement) ; `makepkg` et `namcap` restent à lancer sur Arch.
 
+- Release GitHub `v0.5.0` publiée par le workflow `release.yml` (`.deb` +
+  `.sha256`) ; checksum du `PKGBUILD` renseigné
+  (`53a5733e…8ccf2a`, tarball du tag `v0.5.0`).
+
 ### À faire / non traité
-- `PKGBUILD` : `sha256sums=('SKIP')` tant que le tag `v0.5.0` n'existe pas.
-  Après sa création : `cd packaging/archlinux && ./update-sha256.sh`, puis
-  committer.
 - Pas de test sur matériel Dell réel sous Ubuntu : la couche sysfs est testée
   en simulation et le démon a été validé sur un vrai bus système Ubuntu 24.04
   sans matériel (voir `docs/UBUNTU.md`, section « Ce qui a été testé »).
